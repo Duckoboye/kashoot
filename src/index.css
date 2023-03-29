@@ -1,0 +1,31 @@
+*,
+body,
+html {
+  box-sizing: border-box;
+  box-sizing: content-box;
+  margin: 0px;
+  padding: 0px;
+  font-family: sans-serif, Arial, Helvetica;
+  background-color: aqua;
+  overflow: hidden; /*Nilas*/
+}
+
+header {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10%;
+}
+.logo {
+  width: 1000px;
+}
+
+.knappar {
+  display: flex;
+  justify-content: center;
+}
+
+.knapp {
+  font-size: 60px;
+  margin-right: 5%;
+}
