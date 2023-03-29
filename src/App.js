@@ -12,7 +12,7 @@ function App() {
           Log in
         </button>
         <button type="button" className="knapp">
-          sign up
+          Sign up
         </button>
       </div>
 
