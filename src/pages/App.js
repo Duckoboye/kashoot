@@ -1,5 +1,5 @@
-import "./index.css";
-import logo from "./pic/logo.svg";
+import "../index.css";
+import logo from "../pic/logo.svg";
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
           Log in
         </button>
         <button type="button" className="knapp">
-          sign up
+          Sign up
         </button>
       </div>
 

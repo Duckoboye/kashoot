@@ -6,7 +6,7 @@ html {
   margin: 0px;
   padding: 0px;
   font-family: sans-serif, Arial, Helvetica;
-  background-color: aqua;
+  background-color: #dfb25c;
   overflow: hidden; /*Nilas*/
 }
 
@@ -26,6 +26,10 @@ header {
 }
 
 .knapp {
+  background-color: rgb(238, 216, 216);
   font-size: 60px;
   margin-right: 5%;
+  width: 300px;
+  height: 100px;
+  border-radius: 15px;
 }
