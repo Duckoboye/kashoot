@@ -2,15 +2,13 @@ import "../index.css";
 import logo from "../pic/logo.svg";
 import LoginButton from "./LoginButton";
 
-function App() {
+function LogedIn() {
   return (
     <div className="App">
       <header>
         <img className="logo" src={logo} alt="logo" />
       </header>
-      <div className="knappar">
-        <LoginButton></LoginButton>
-      </div>
+      <div className="knappar"></div>
 
       <script src="/socket.io/socket.io.js"></script>
       <script>var socket = io();</script>
@@ -18,4 +16,4 @@ function App() {
   );
 }
 
-export default App;
+export default LogedIn;
