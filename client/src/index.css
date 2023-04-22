@@ -16,7 +16,7 @@ header {
   justify-content: center;
   margin-bottom: 10%;
 }
-.logo {
+.start_logo {
   width: 1000px;
   padding: 0px 50px 0px 50px;
 }
@@ -32,4 +32,31 @@ header {
   width: 300px;
   height: 100px;
   border-radius: 15px;
+}
+
+/*Logged in*/
+.logo {
+  width: 400px;
+}
+
+.join_text {
+  display: flex;
+  justify-content: center;
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+}
+
+.name {
+  font-size: 50px;
+}
+input {
+  width: 200px;
+  height: 25px;
+  font-size: 25px;
+  margin-bottom: 20px;
+  border: 2px solid black;
+  border-radius: 5px;
 }
