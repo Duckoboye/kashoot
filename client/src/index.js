@@ -3,14 +3,16 @@ import App from "./pages/App";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
-import LogedIn from "./pages/LogedIn";
+import LoggedIn from "./pages/LoggedIn";
+import Layout from "./Layout";
 
-export default function go() {
+export default function MainRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />}>
-          <Route path="logedIn" element={<LogedIn />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<App />} />
+          <Route path="loggedIn" element={<LoggedIn />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -27,7 +29,7 @@ root.render(
     }}
   >
     <React.StrictMode>
-      <App />
+      <MainRoutes />
     </React.StrictMode>
   </Auth0Provider>
 );
