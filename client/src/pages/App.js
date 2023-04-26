@@ -12,9 +12,6 @@ function App() {
         <LoginButton></LoginButton>
       </div>
       <a href="LoggedIn">eheh </a>
-
-      <script src="/socket.io/socket.io.js"></script>
-      <script>var socket = io();</script>
     </div>
   );
 }
