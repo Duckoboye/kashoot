@@ -9,6 +9,9 @@ export function MyForm() {
     event.preventDefault();
     setIsLoading(true);
 
+    /*
+      MUY IMPORTANTE!!!!!!111eleventyone
+    */
     socket.timeout(5000).emit("chat message", value, () => {
       setIsLoading(false);
     });
