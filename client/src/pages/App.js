@@ -1,6 +1,6 @@
 import "../index.css";
 import logo from "../pic/logo.svg";
-import LoginButton from "./LoginButton";
+import LoginButton from "../components/LoginButton";
 
 function App() {
   return (
