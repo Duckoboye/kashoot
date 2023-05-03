@@ -12,6 +12,8 @@ function App() {
         <LoginButton></LoginButton>
       </div>
       <a href="LoggedIn">eheh </a>
+       <a href="LoggedInTeach">Teach </a>
+        <a href="InGamelobby">joined </a>
     </div>
   );
 }

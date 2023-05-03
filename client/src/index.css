@@ -49,9 +49,6 @@ header {
   justify-content: center;
 }
 
-.name {
-  font-size: 50px;
-}
 input {
   width: 200px;
   height: 25px;
@@ -59,4 +56,19 @@ input {
   margin-bottom: 20px;
   border: 2px solid black;
   border-radius: 5px;
+}
+
+/*In game lobby*/
+
+.info {
+display: flex;
+justify-content: space-around;
+font-size: 25px;
+}
+
+
+.nameBox {
+  display: flex;
+  padding: 100px;
+  border: 5px black solid;
 }
