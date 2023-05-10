@@ -19,6 +19,8 @@ header img{
 .start_logo {
   width: 1000px;
   padding: 0px 50px 0px 50px;
+  display: flex;
+  justify-content: center;
 }
 
 .knappar {
@@ -61,10 +63,12 @@ input {
 /*Logged in teacher*/
 .teachKashoot button{
   display: flex;
-  justify-content: left ;
-  width: 100px;
-  height: 50px;
-  margin-bottom: 10px;
+  justify-content: center ;
+  align-items: center;
+  width:120px;
+  height: 30px;
+  font-size: 15px;
+  margin-top: 10px;
 }
 
 /*In game lobby*/

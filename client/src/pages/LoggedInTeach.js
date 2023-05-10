@@ -8,7 +8,7 @@ function LoggedInTeach() {
     <div className="LoggedIn">
       <header>
         <div className="teachKashoot">
-          <button>Create a Kashoot</button>
+          <button>Create kashoot</button>
           <button>Your Kashoots</button>
         </div>
         <img className="logo" src={logo} alt="logo" />
