@@ -7,6 +7,10 @@ function LoggedInTeach() {
   return (
     <div className="LoggedIn">
       <header>
+        <div className="teachKashoot">
+          <button>Create a Kashoot</button>
+          <button>Your Kashoots</button>
+        </div>
         <img className="logo" src={logo} alt="logo" />
       </header>
       <h2 className="join_text"> Join a kashoot</h2>

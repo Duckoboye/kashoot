@@ -10,10 +10,10 @@ html {
   overflow: hidden; /*Nilas*/
 }
 
-header {
+header img{
   margin-top: 20px;
-  display: flex;
-  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 10%;
 }
 .start_logo {
@@ -58,17 +58,50 @@ input {
   border-radius: 5px;
 }
 
+/*Logged in teacher*/
+.teachKashoot button{
+  display: flex;
+  justify-content: left ;
+  width: 100px;
+  height: 50px;
+  margin-bottom: 10px;
+}
+
 /*In game lobby*/
 
 .info {
 display: flex;
 justify-content: space-around;
-font-size: 25px;
+font-size: 20px;
 }
 
+.startknapp {
+  margin-bottom: 10px;
+  width: 100px;
+  font-size: 35px;
+  border-top-color: rgba(217, 189, 86, 0.65);
+  border-left-color: rgba(217, 189, 86, 0.65);
+  border-bottom-color: rgb(152, 137, 38);
+  border-right-color: rgb(152, 137, 38);
+   
+}
 
 .nameBox {
   display: flex;
-  padding: 100px;
+  padding: 100px 75px;
+  margin: 0 20px;
   border: 5px black solid;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: row;
+  font-size: 30px;
+}
+
+.nameBox.name {
+  margin: 0 20px; 
+}
+
+.nameBox h2{
+  padding: 8px;
 }
