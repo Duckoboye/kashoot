@@ -10,15 +10,21 @@ html {
   overflow: hidden; /*Nilas*/
 }
 
-header {
+header{
+display: flex;
+}
+
+header img{
   margin-top: 20px;
-  display: flex;
-  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 10%;
 }
 .start_logo {
   width: 1000px;
   padding: 0px 50px 0px 50px;
+  display: flex;
+  justify-content: center;
 }
 
 .knappar {
@@ -49,9 +55,6 @@ header {
   justify-content: center;
 }
 
-.name {
-  font-size: 50px;
-}
 input {
   width: 200px;
   height: 25px;
@@ -59,4 +62,57 @@ input {
   margin-bottom: 20px;
   border: 2px solid black;
   border-radius: 5px;
+}
+
+/*Logged in teacher*/
+.Teachbutton button{
+  display: flex;
+  justify-content: center ;
+  align-items: center;
+  width:120px;
+  height: 30px;
+  font-size: 15px;
+  margin-top: 10px;
+}
+
+/*In game lobby*/
+.pin {
+  font-size: 45px;
+}
+
+.info {
+display: flex;
+justify-content: space-around;
+font-size: 20px;
+}
+
+.startknapp {
+  margin-bottom: 10px;
+  width: 100px;
+  font-size: 35px;
+  border-top-color: rgba(217, 189, 86, 0.65);
+  border-left-color: rgba(217, 189, 86, 0.65);
+  border-bottom-color: rgb(152, 137, 38);
+  border-right-color: rgb(152, 137, 38);
+   
+}
+
+.nameBox {
+  display: flex;
+  padding: 100px 75px;
+  margin: 0 20px;
+  border: 5px black solid;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: row;
+  font-size: 30px;
+}
+
+.nameBox.name {
+  margin: 0 20px; 
+}
+
+.nameBox h2{
+  padding: 8px;
 }

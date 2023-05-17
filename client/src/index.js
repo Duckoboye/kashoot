@@ -4,6 +4,9 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
 import LoggedIn from "./pages/LoggedIn";
+import LoggedInTeach from "./pages/LoggedInTeach";
+import InGameLobby from "./pages/InGameLobby";
+import Start from "./pages/Start";
 import Layout from "./Layout";
 
 export default function MainRoutes() {
@@ -13,6 +16,9 @@ export default function MainRoutes() {
         <Route path="/" element={<Layout />}>
           <Route index element={<App />} />
           <Route path="loggedIn" element={<LoggedIn />} />
+        <Route path="loggedInTeach" element={<LoggedInTeach />} />
+        <Route path="inGameLobby" element={<InGameLobby />} />
+         <Route path="Start" element={<Start />} />
         </Route>
       </Routes>
     </BrowserRouter>

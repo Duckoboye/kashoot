@@ -35,6 +35,12 @@ function LoggedIn() {
         <form>
           <input type="text" placeholder="name" className="name"></input>
           <br></br>
+          <input
+            type="code"
+            required
+            placeholder="1234"
+            classname="code"
+          ></input>
           <br></br>
           <input type="submit" value="Join!" className="submit"></input>
         </form>
