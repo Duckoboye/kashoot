@@ -6,8 +6,8 @@ function LoggedInTeach() {
 
   return (
     <div className="LoggedIn">
-      <header>
-        <div className="teachKashoot">
+      <header className="Teachkashoot">
+        <div className="Teachbutton">
           <button>Create kashoot</button>
           <button>Your Kashoots</button>
         </div>

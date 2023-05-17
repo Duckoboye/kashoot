@@ -5,7 +5,7 @@ function InGameLobby() {
  return (
     <div className="InGamelobby">
       <header>
-        <h1>Pin:498765</h1>
+        <h1 className="pin">Pin:498765</h1>
       </header>
       <div className="info">
       <h2>Players:3</h2>

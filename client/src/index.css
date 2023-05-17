@@ -10,6 +10,10 @@ html {
   overflow: hidden; /*Nilas*/
 }
 
+header{
+display: flex;
+}
+
 header img{
   margin-top: 20px;
   margin-left: auto;
@@ -61,7 +65,7 @@ input {
 }
 
 /*Logged in teacher*/
-.teachKashoot button{
+.Teachbutton button{
   display: flex;
   justify-content: center ;
   align-items: center;
@@ -72,6 +76,9 @@ input {
 }
 
 /*In game lobby*/
+.pin {
+  font-size: 45px;
+}
 
 .info {
 display: flex;
