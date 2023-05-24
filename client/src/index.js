@@ -8,13 +8,14 @@ import LoggedInTeach from "./pages/LoggedInTeach";
 import InGameLobby from "./pages/InGameLobby";
 import Start from "./pages/Start";
 import Layout from "./Layout";
+import Authenticator from "./pages/Authenticator";
 
 export default function MainRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<App />} />
+          <Route index element={<App/>} />
           <Route path="loggedIn" element={<LoggedIn />} />
         <Route path="loggedInTeach" element={<LoggedInTeach />} />
         <Route path="inGameLobby" element={<InGameLobby />} />
