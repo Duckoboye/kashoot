@@ -116,3 +116,23 @@ font-size: 20px;
 .nameBox h2{
   padding: 8px;
 }
+
+
+/*Loadingscreen*/
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.Loadingpic {
+display: block;
+  width: 100px;
+  height: 100px;
+animation: rotation 5s infinite linear;
+margin: calc(50vw - 100px) auto;
+}
