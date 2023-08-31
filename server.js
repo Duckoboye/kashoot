@@ -1,15 +1,15 @@
 const express = require('express');
-const app = express();
-const path = require('path');
-const port = process.env.PORT || 5000;
+const cors = require('cors')
 const utils = require('./serverUtils')
 
+const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
-const io = new Server(server);
+const io = new Server(server, utils.config.cors);
 
-////socket io shit
+app.use(cors())
+
 io.on('connection', (socket) => {
   utils.log.socketio('a user connected');
   socket.on('disconnect', () => {
@@ -20,7 +20,9 @@ io.on('connection', (socket) => {
   });
 });
 
-//start server
-server.listen(port, () => {
-  utils.log.express(`API server listening on http://127.0.0.1:${port}`);
+
+server.listen(utils.config.port, () => {
+  utils.log.express(`API server listening on http://127.0.0.1:${utils.config.port}`);
 });
+
+module.exports = {io, server}

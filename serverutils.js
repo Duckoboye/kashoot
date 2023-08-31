@@ -31,6 +31,12 @@ error = {
         generic.socketio(`\x1b[91mERROR |\x1b[0m ${text}`)
     }
 }
+config = {
+    port: process.env.PORT || 5000,
+    cors: {
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST']
+      }
+} 
 
-
-module.exports = { log, warn, error }
+module.exports = { log, warn, error, config }
