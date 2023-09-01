@@ -12,13 +12,15 @@ export function MyForm() {
     /*
       MUY IMPORTANTE!!!!!!111eleventyone
     */
-    socket.timeout(5000).emit("chat message", value, () => {
-      setIsLoading(false);
+    socket.emit("GameStartReq", () => {
     });
+    console.log("awaiting question")
+    socket.on("GameQuestion", )
   }
 
   return (
     <form onSubmit={onSubmit}>
+      <p>{value}</p>
       <input onChange={(e) => setValue(e.target.value)} />
 
       <button type="submit" disabled={isLoading}>
