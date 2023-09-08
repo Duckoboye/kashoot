@@ -31,6 +31,12 @@ app.get('/', (req, res) => {
   res.send('API')
 })
 
+
+app.post('/api/generatecode', (req, res) => {
+  
+  res.send(utils.api.generateCode(6))
+})
+
 server.listen(utils.config.port, () => {
   utils.log.express(`API server listening on http://127.0.0.1:${utils.config.port}`);
 });
