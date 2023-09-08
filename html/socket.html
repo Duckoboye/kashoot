@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button onclick="hilfe()">Click me</button>
+    <div>
+        <p id="question"></p>
+        <p id="ans1"></p>
+        <p id="ans2"></p>
+        <p id="ans3"></p>
+        <p id="ans4"></p>
+    </div>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        function hilfe() {
+            socket.emit("GameStartReq", "test")
+            console.log("test")
+        }
+
+        const socket = io("http://localhost:3000");
+        socket.on('connect', () => {
+            console.log("test")
+            socket.on('GameQuestion', (data) => {
+                console.log(data);
+
+                document.getElementById("question").innerHTML = data.question;
+                for (let i = 0; i < data.answers.length; i++) {
+                    document.getElementById("ans" + (i + 1)).innerHTML = data.answers[i]
+                        .answer;
+                }
+            })
+        })
+        /*
+        socket.on("GameStarting", (data) => {
+            console.log(data)
+        })
+        socket.on("GameQuestion", () => {
+            console.log("REEEEEEEE")
+        })*/
+    </script>
+</body>
+
+</html>
