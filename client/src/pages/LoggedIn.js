@@ -39,7 +39,7 @@ function LoggedIn() {
             type="code"
             required
             placeholder="1234"
-            classname="code"
+            className="code"
           ></input>
           <br></br>
           <input type="submit" value="Join!" className="submit"></input>
