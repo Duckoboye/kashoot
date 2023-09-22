@@ -8,6 +8,7 @@ import LoggedInTeach from "./pages/LoggedInTeach";
 import InGameLobby from "./pages/InGameLobby";
 import Start from "./pages/Start";
 import Layout from "./Layout";
+import StartGame from "./pages/StartGame"
 
 export default function MainRoutes() {
   return (
@@ -19,6 +20,7 @@ export default function MainRoutes() {
         <Route path="loggedInTeach" element={<LoggedInTeach />} />
         <Route path="inGameLobby" element={<InGameLobby />} />
          <Route path="Start" element={<Start />} />
+           <Route path="StartGame" element={<StartGame />} />
         </Route>
       </Routes>
     </BrowserRouter>
