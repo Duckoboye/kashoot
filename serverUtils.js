@@ -39,4 +39,16 @@ config = {
       }
 } 
 
-module.exports = { log, warn, error, config }
+api = {
+    generateCode: (length) => {
+        let result = ''
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        for (let i=0; i<length; i++) {
+          let randomChar = chars[Math.floor(Math.random()*chars.length)]
+          result += randomChar
+        }
+        return result
+      }
+}
+
+module.exports = { log, warn, error, config, api }

@@ -1,19 +1,23 @@
 const express = require('express');
 const cors = require('cors')
 const utils = require('./serverUtils')
-const socket = require('./socket')
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
-const io = new Server(server, utils.config.cors);
+const initializeSocket = require('./socket');
 
 app.use(cors())
 
-io.on('connection', socket);
+const io = initializeSocket(server);
 
 app.get('/', (req, res) => {
   res.send('API')
+})
+
+app.post('/api/generatecode', (req, res) => {
+  
+  res.send(utils.api.generateCode(6))
 })
 
 server.listen(utils.config.port, () => {
