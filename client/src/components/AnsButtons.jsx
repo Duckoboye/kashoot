@@ -3,9 +3,7 @@ import { socket } from "../socket";
 
 const AnsButton = (props) => {
     function sendQuestion(){
-            socket.emit("MyAnswer",
-                // socket.id? props.id, ngt mer?
-            )
+            socket.emit("GameAnswer", props.id)
     }
 
   return (
