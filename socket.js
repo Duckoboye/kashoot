@@ -32,12 +32,14 @@ function initializeSocket(server) {
         
         socket.on('GameAnswer', (e) => {
             if (gameState != 'started') return;
-            console.log(clients); 
 
-            function registerAnswer(userid, answerid) {
-                const set = {userid, answerid}
-                if (answers.has(set)) return utils.warn.socketio(`${socket.id} attempted to answer, but has already answered this question.`)
-                answers.add(set)
+            console.log(clients); 
+            function registerAnswer(userid, answerid) { //adds answers to the 'answers' Set and prevents duplicates.
+                const set = `${userid}-${answerid}` //Gotta do this since Sets compare by reference, not content. This was fun to debug.
+
+                //Check uniqueness, warn if not.
+                if (!answers.has(set)) answers.add(set)
+                return utils.warn.socketio(`${socket.id} attempted to answer, but has already answered this question.`)
             }
             
             utils.log.socketio(`Recieved answer ${e} from ${socket.id}`)
