@@ -33,9 +33,8 @@ function initializeSocket(server) {
         socket.on('GameAnswer', (e) => {
             if (gameState != 'started') return;
 
-            console.log(clients); 
             function registerAnswer(userid, answerid) { //adds answers to the 'answers' Set and prevents duplicates.
-                const set = `${userid}-${answerid}` //Gotta do this since Sets compare by reference, not content. This was fun to debug.
+                const set = JSON.stringify({userid, answerid}) //Gotta do this since Sets compare by reference, not content. This was fun to debug.
 
                 //Check uniqueness, warn if not.
                 if (!answers.has(set)) answers.add(set)
@@ -44,7 +43,6 @@ function initializeSocket(server) {
             
             utils.log.socketio(`Recieved answer ${e} from ${socket.id}`)
             registerAnswer(socket.id, e)
-            console.log(answers); 
             
             if (answers.count >= clients.count) {
                 utils.log.socketio('answers >= connectedClients')
