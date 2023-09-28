@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "../index.css";
 import { socket } from "../socket";
+import AnsButton from "../components/AnsButtons";
 
 const defaultQuestion = {
             "question": "", 
@@ -60,11 +61,10 @@ function StartGame() {
             <p className="rubrik_quest">{question.question}</p>
             <div className="container">
 
-            <button classname= "quest1"><p>{question.answers[0].answer}</p></button>
-            <button classname= "quest2"><p>{question.answers[1].answer}</p></button>
-            <button classname= "quest3"><p>{question.answers[2].answer}</p></button>
-            <button classname= "quest4"><p>{question.answers[3].answer}</p></button>
-
+            <AnsButton id={question.answers[0].id} question={question.answers[0].answer}/>
+            <AnsButton id={question.answers[1].id} question={question.answers[1].answer}/>
+            <AnsButton id={question.answers[2].id} question={question.answers[2].answer}/>
+            <AnsButton id={question.answers[3].id} question={question.answers[3].answer}/>
             </div>
             </>
         }
