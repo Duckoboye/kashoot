@@ -146,6 +146,12 @@ font-size: 20px;
   border: 2px solid black;
 }
 
+.container button:hover {
+background-color: #c59843;
+cursor: pointer;
+}
+
+/*
 .quest1{
   grid-area: ques1;
 }
@@ -160,3 +166,4 @@ font-size: 20px;
 .quest4{
   grid-area: ques4;
 }
+*/
