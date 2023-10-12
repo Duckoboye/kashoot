@@ -51,4 +51,14 @@ api = {
       }
 }
 
-module.exports = { log, warn, error, config, api }
+socket = {
+    registerAnswer: (answerSet, userid, answerid) => { //adds answers to the 'answers' Set and prevents duplicates.
+        const set = JSON.stringify({userid, answerid}) //Gotta do this since Sets compare by reference, not content. This was fun to debug.
+        console.log('hello from registerAnswer')
+        //Check uniqueness, warn if not.
+        if (!answerSet.has(set)) return answerSet.add(set)
+        warn.socketio(`${socket.id} attempted to answer, but has already answered this question.`)
+    }
+}
+
+module.exports = { log, warn, error, config, api, socket }
