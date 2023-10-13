@@ -1,13 +1,10 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
-import { socketLogger } from '../index';
+import { socketLogger } from '..';
+import {io} from '../'
 
-interface Answer {
-    userid: string;
-    answerid: string;
-}
-
+const activeGames: Record<string,Game> = {}
 const exampleQuestion = {
     question: 'Bla bla bla, test',
     answers: [{
@@ -29,85 +26,144 @@ const exampleQuestion = {
     ],
 };
 
+interface Question {
+    question: string;
+    answers: string[];
+    correctAnswer: number;
+    id: number;
+}
+interface Answer {
+    userId: string;
+    answer: string;
+    questionId: number;
+    roundId: number;
+}
+interface RoundResults {
+    answer: string;
+}
+interface GameResults {
+    // Placeholder
+}
+interface Game {
+    roomId: string;
+    gameState: 'stopped' | 'starting' | 'running' | 'finished';
+    currentRound: number;
+    questions: Question[];
+    results: Record<number, RoundResults>;
+    clients: Set<string>;
+    answers: Answer[];
+}
 interface IOOptions {
     cors: {
         origin: string;
         methods: string[];
     };
 }
-
-function initializeSocket(server: HttpServer): Server {
+export function createSocketServer(httpServer: HttpServer) {
     const ioOptions: IOOptions = {
         cors: config.cors
     }
-    const io = new Server(server, ioOptions);
-    const clients: Set < string > = new Set();
-    const answers: Set < Answer > = new Set();
-    let gameState: 'stopped' | 'starting' | 'started' = 'stopped';
+    const io = new Server(httpServer, ioOptions);
 
     io.on('connection', (socket: Socket) => {
-        clients.add(socket.id);
-        socketLogger.log('New user connected. ID: ' + socket.id);
-        io.emit('GameClientSync', Array.from(clients));
+        handleConnection(socket)
 
         socket.on('disconnect', () => {
-            clients.delete(socket.id);
-            socketLogger.log(`User ${socket.id} disconnected`);
-            io.emit('GameClientSync', Array.from(clients));
+            handleDisconnect(socket)
         });
-
+        socket.on('joinGame', (roomId) => {
+            joinOrCreateGame(socket, roomId)
+        })
         socket.on('GameStartReq', () => {
-            gameState = 'starting';
-            socketLogger.log('Received GameStartReq, broadcasting GameStarting event to all clients.');
-            io.emit('GameStarting');
-
-            setTimeout(() => {
-                gameState = 'started';
-                socketLogger.log('Timeout elapsed, sending the first Question..');
-                io.emit('GameQuestion', exampleQuestion);
-            }, 5000);
+            startGame(socket)
         });
-
-        socket.on('GameAnswer', (e: string) => {
-            if (gameState !== 'started') return;
-
-            socketLogger.log(`Received answer ${e} from ${socket.id}`);
-            registerAnswer(socket, answers, e);
-
-            if (answers.size >= clients.size) {
-                socketLogger.log('All clients have now answered!');
-                io.emit('GameResult', 1);
-            }
+        socket.on('GameAnswer', (e) => {
+            handleAnswer(socket, e)
         });
-    });
-
+})
     return io;
 }
+function handleAnswer(socket: Socket, roomId: any) {
+    throw new Error('Function not implemented.');
+    /*pscode
+    game = getGameBySocket(socket)
 
-function registerAnswer(socket: Socket, answerSet: Set<Answer>, answerid: string) {
-    const userid = socket.id;
-    const answer: Answer = {
-        userid,
-        answerid
-    };
-    socketLogger.log('Hello from registerAnswer');
+    if game.gamestate != 'running'
+    return
 
-    // Check uniqueness, warn if not.
-    let isUnique = true;
+    validateAndRegisterAnswer()
 
-    for (const existingAnswer of answerSet) {
-        if (existingAnswer.userid === answer.userid && existingAnswer.answerid === answer.answerid) {
-            isUnique = false;
-            break;
+    if answers.count === clients.count
+    
+    calculateRoundResults
+    ++game.currentRound>game.questions.length?startRound():endGame()
+    */
+}
+function joinOrCreateGame(socket: Socket, roomId: any) {
+    //throw new Error('Function not implemented.');
+    if (!activeGames[roomId]) {
+        activeGames[roomId] = {
+            roomId,
+            gameState: 'stopped',
+            currentRound: 0,
+            questions: [],
+            results: {},
+            clients: new Set(),
+            answers: []
         }
     }
 
-    if (isUnique) {
-        answerSet.add(answer);
-    } else {
-        socketLogger.warn(`${socket.id} attempted to answer, but has already answered this question.`);
-    }
+    const game = activeGames[roomId];
+    
+    //Make the socket join the room and add it to the game's internal list of clients.
+    socket.join(roomId)
+    game.clients.add(socket.id)
+
+    emitGameState(socket, game)
 }
+function startGame(socket: Socket) {
+    const game = getGameBySocket(socket)
 
+    if (game.gameState !== 'stopped')
+    return //do not try to start two games at once. 
 
-export = initializeSocket;
+    game.gameState = 'starting'
+    emitGameState(socket,game)
+
+    game.gameState = 'running'
+    emitGameState(socket,game)
+    startRound(socket, game)
+}
+function endGame(socket: Socket) {
+    throw new Error('Function not implemented.');
+    /* pscode
+    change gamestate to finished
+    remove game roomid from activeGames list
+    */
+}
+function startRound(socket: Socket, game: Game) {
+    const {question} = game.questions[game.currentRound]
+    broadcastToUsersRoom(socket, 'GameQuestion',question)
+}
+function handleDisconnect(socket: Socket) {
+    socketLogger.log(`User ${socket.id} disconnected`);
+    // if user is part of a game, remove them from the game client list so the server won't wait for their answers
+    if (socket.rooms.size > 0) {
+    const game = getGameBySocket(socket)
+    game.clients.delete(socket.id)
+}
+}
+function handleConnection(socket: Socket) {
+    socketLogger.log(`User ${socket.id} connected`);
+}
+function getGameBySocket(socket: Socket) {
+    const room = Array.from(socket.rooms)[1]
+    return activeGames[room]
+}
+function emitGameState(socket: Socket, game: Game) {
+    broadcastToUsersRoom( socket, 'GameState',game.gameState)
+}
+function broadcastToUsersRoom( socket: Socket, event: string, data: string ) {
+    const room = Array.from(socket.rooms)[1]
+    io.to(room).emit(event,data)
+}

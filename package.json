@@ -6,8 +6,8 @@
   "scripts": {
     "install-both": "npm install && npm install --prefix client",
     "start": "concurrently 'npm run server' 'npm run client'",
-    "server": "nodemon dist/server.js",
-    "dev-server": "concurrently 'npx tsc --watch' 'nodemon dist/server.js'",
+    "server": "nodemon dist/index.js",
+    "dev-server": "concurrently 'npx tsc --watch' 'npm run server'",
     "client": "npm start --prefix client",
     "dev": "concurrently 'npx tsc --watch' 'npm run server' 'npm run client'"
   },
