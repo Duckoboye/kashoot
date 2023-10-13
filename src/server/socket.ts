@@ -99,14 +99,36 @@ function handleAnswer(socket: Socket, roomId: any) {
     ++game.currentRound>game.questions.length?startRound():endGame()
     */
 }
-function joinOrCreateGame(socket: Socket, roomId: any) {
-    //throw new Error('Function not implemented.');
+function joinOrCreateGame(socket: Socket, roomId: string) {
     if (!activeGames[roomId]) {
         activeGames[roomId] = {
             roomId,
             gameState: 'stopped',
             currentRound: 0,
-            questions: [],
+            questions: [{
+                question: 'What is the capital of France?',
+                answers: ['Paris', 'London', 'Berlin', 'Rome'],
+                correctAnswer: 0,
+                id: 0,
+            },
+            {
+                question: 'Which planet is known as the Red Planet?',
+                answers: ['Mars', 'Earth', 'Jupiter', 'Venus'],
+                correctAnswer: 0,
+                id: 1,
+            },
+            {
+                question: 'Who wrote the play "Romeo and Juliet"?',
+                answers: ['William Shakespeare', 'Jane Austen', 'George Orwell', 'Charles Dickens'],
+                correctAnswer: 0,
+                id: 2,
+            },
+            {
+                question: 'Which gas do plants absorb from the atmosphere?',
+                answers: ['Carbon dioxide', 'Oxygen', 'Nitrogen', 'Hydrogen'],
+                correctAnswer: 3,
+                id: 3,
+            },],
             results: {},
             clients: new Set(),
             answers: []
@@ -118,12 +140,11 @@ function joinOrCreateGame(socket: Socket, roomId: any) {
     //Make the socket join the room and add it to the game's internal list of clients.
     socket.join(roomId)
     game.clients.add(socket.id)
-
+    socketLogger.log(`${socket.id} just connected to room ${roomId}`)
     emitGameState(socket, game)
 }
 function startGame(socket: Socket) {
     const game = getGameBySocket(socket)
-
     if (game.gameState !== 'stopped')
     return //do not try to start two games at once. 
 
@@ -142,7 +163,7 @@ function endGame(socket: Socket) {
     */
 }
 function startRound(socket: Socket, game: Game) {
-    const {question} = game.questions[game.currentRound]
+    const { question } = game.questions[game.currentRound]
     broadcastToUsersRoom(socket, 'GameQuestion',question)
 }
 function handleDisconnect(socket: Socket) {
@@ -166,4 +187,7 @@ function emitGameState(socket: Socket, game: Game) {
 function broadcastToUsersRoom( socket: Socket, event: string, data: string ) {
     const room = Array.from(socket.rooms)[1]
     io.to(room).emit(event,data)
+}
+function userHasGame(socket: Socket): boolean {
+    return (socket.rooms.size > 0)
 }
