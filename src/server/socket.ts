@@ -1,14 +1,7 @@
-import {
-    Server,
-    Socket
-} from 'socket.io';
-import {
-    config
-} from './utils';
-import {
-    Server as HttpServer
-} from 'http';
-import { socketLogger } from './server';
+import { Server, Socket } from 'socket.io';
+import { Server as HttpServer } from 'http';
+import { config } from '../utils/utils';
+import { socketLogger } from '../index';
 
 interface Answer {
     userid: string;
@@ -41,7 +34,6 @@ interface IOOptions {
         origin: string;
         methods: string[];
     };
-    // Add other options if needed
 }
 
 function initializeSocket(server: HttpServer): Server {
@@ -92,21 +84,30 @@ function initializeSocket(server: HttpServer): Server {
     return io;
 }
 
-function registerAnswer(socket: Socket, answerSet: Set < Answer > , answerid: string) {
+function registerAnswer(socket: Socket, answerSet: Set<Answer>, answerid: string) {
     const userid = socket.id;
     const answer: Answer = {
         userid,
         answerid
     };
-    const set = JSON.stringify(answer);
     socketLogger.log('Hello from registerAnswer');
 
     // Check uniqueness, warn if not.
-    if (!answerSet.has(answer)) {
+    let isUnique = true;
+
+    for (const existingAnswer of answerSet) {
+        if (existingAnswer.userid === answer.userid && existingAnswer.answerid === answer.answerid) {
+            isUnique = false;
+            break;
+        }
+    }
+
+    if (isUnique) {
         answerSet.add(answer);
     } else {
         socketLogger.warn(`${socket.id} attempted to answer, but has already answered this question.`);
     }
 }
+
 
 export = initializeSocket;
