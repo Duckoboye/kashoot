@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
-import {handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, } from '../game/game'
+import {handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, getGameBySocket, } from '../game/game'
 
 export function createSocketServer(httpServer: HttpServer) {
 
@@ -22,6 +22,9 @@ export function createSocketServer(httpServer: HttpServer) {
         socket.on('GameAnswer', (e) => {
             handleAnswer(socket, e)
         });
+        socket.on('getGameState', () => {
+            socket.emit('gameState', getGameBySocket(socket).gameState)
+        })
 })
     return io;
 }

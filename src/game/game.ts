@@ -97,12 +97,15 @@ function startGame(socket: Socket) {
     if (game.gameState !== 'stopped')
     return //do not try to start two games at once. 
 
-    game.gameState = 'starting'
-    emitGameState(socket,game)
-
-    game.gameState = 'running'
-    emitGameState(socket,game)
-    startRound(socket, game)
+    game.gameState = 'starting';
+    emitGameState(socket, game);
+    
+    setTimeout(() => {
+        game.gameState = 'running';
+        emitGameState(socket, game);
+        startRound(socket, game);
+    }, 1000);
+    
 }
 function endGame(socket: Socket) {
     throw new Error('Function not implemented.');
@@ -140,5 +143,9 @@ function broadcastToUsersRoom( socket: Socket, event: string, data: string ) {
 function userHasGame(socket: Socket): boolean {
     return (socket.rooms.size > 0)
 }
+function getGameState(socket: Socket) {
+    const game = getGameBySocket(socket)
+    return game.gameState
+}
 
-export {handleAnswer, joinOrCreateGame, startGame, endGame, handleConnection, handleDisconnect, userHasGame }
+export {handleAnswer, joinOrCreateGame, startGame, endGame, handleConnection, handleDisconnect, userHasGame, getGameBySocket, getGameState }
