@@ -9,7 +9,8 @@
     "server": "nodemon dist/index.js",
     "dev-server": "concurrently 'npx tsc --watch' 'npm run server'",
     "client": "npm start --prefix client",
-    "dev": "concurrently 'npx tsc --watch' 'npm run server' 'npm run client'"
+    "dev": "concurrently 'npx tsc --watch' 'npm run server' 'npm run client'",
+    "test": "npx mocha -r ts-node/register src/test/*.test.ts"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
     "chai-http": "^4.4.0",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }
 }
