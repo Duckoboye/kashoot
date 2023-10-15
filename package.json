@@ -4,28 +4,42 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "client-install": "npm install --prefix client",
-    "start": "node index.js",
-    "server": "nodemon index.js",
+    "install-both": "npm install && npm install --prefix client",
+    "start": "concurrently 'npm run server' 'npm run client'",
+    "server": "nodemon dist/index.js",
+    "dev-server": "concurrently 'npx tsc --watch' 'npm run server'",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "concurrently 'npx tsc --watch' 'npm run server' 'npm run client'",
+    "test": "npx mocha -r ts-node/register test/*.test.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Duckoboye/kashoot_backend.git"
+    "url": "git+https://github.com/Duckoboye/kashoot.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Duckoboye/kashoot_backend/issues"
+    "url": "https://github.com/Duckoboye/kashoot/issues"
   },
-  "homepage": "https://github.com/Duckoboye/kashoot_backend#readme",
+  "homepage": "https://github.com/Duckoboye/kashoot#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "nodemon": "^2.0.20",
     "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.8",
+    "@types/express": "^4.17.19",
+    "@types/mocha": "^10.0.2",
+    "@types/node": "^20.8.5",
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.2.0",
+    "nodemon": "^2.0.20",
+    "socket.io-client": "^4.7.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
   }
 }
