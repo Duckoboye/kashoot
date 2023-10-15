@@ -1,5 +1,5 @@
 export const config = {
-    port: process.env.PORT || 5000,
+    port: Number(process.env.PORT) || 5000,
     cors: {
       origin: 'http://localhost:3000',
       methods: ['GET', 'POST'],
