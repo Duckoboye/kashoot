@@ -38,6 +38,7 @@
     "chai-http": "^4.4.0",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
+    "socket.io-client": "^4.7.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }
