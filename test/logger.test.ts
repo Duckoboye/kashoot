@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import Logger from '../utils/logger';
+import Logger from '../src/utils/logger';
 
 describe('Logger Tests', () => {
   it('should create a logger instance', () => {

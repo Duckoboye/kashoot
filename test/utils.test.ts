@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { generateCode } from '../utils/utils';
+import { generateCode } from '../src/utils/utils';
 
 describe('Utils Tests', () => {
   it('should generate a code of the specified length', () => {
