@@ -8,8 +8,7 @@
     "start": "concurrently 'npm run server' 'npm run client'",
     "server": "nodemon dist/index.js",
     "dev-server": "concurrently 'npx tsc --watch' 'npm run server'",
-    "client": "npm start --prefix client",
-    "dev": "concurrently 'npx tsc --watch' 'npm run server' 'npm run client'",
+    "dev": "concurrently 'npx tsc --watch' 'npm run server'",
     "test": "npx mocha -r ts-node/register test/*.test.ts"
   },
   "repository": {
