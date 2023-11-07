@@ -10,7 +10,32 @@ enum LogLevel {
     constructor(service: string) {
       this.service = service;
     }
-  
+    private getColorForService() {
+      const colors = [
+        '\x1b[31m',
+        '\x1b[32m',
+        '\x1b[33m',
+        '\x1b[34m',
+        '\x1b[35m',
+        '\x1b[36m',
+        '\x1b[91m',
+        '\x1b[92m',
+        '\x1b[93m',
+        '\x1b[94m',
+        '\x1b[95m',
+        '\x1b[96m',
+      ];
+      let sum = 0;
+      for (let i = 0; i < this.service.length; i++) {
+        sum += this.service.charCodeAt(i);
+      }
+    
+      // Use the sum to determine the color index
+      const colorIndex = Math.abs(sum-this.service.charCodeAt(1)) % colors.length;
+    
+      return colors[colorIndex];
+    }
+
     private _log(level: LogLevel, text: string) {
       const serviceLabel = `[${this.service.toUpperCase()}]`;
       let logColor = '';
@@ -27,7 +52,7 @@ enum LogLevel {
           break;
       }
   
-      console.log(`${serviceLabel} ${logColor}${LogLevel[level]}\x1b[0m | ${text}`);
+      console.log(`${this.getColorForService()} ${serviceLabel} ${logColor}${LogLevel[level]}\x1b[0m | ${text}`);
     }
   
     public log(text: string) {
