@@ -1,17 +1,18 @@
 import io from 'socket.io-client';
+import { ioc, socketClientLogger } from '..';
 
-export function createSocketClient() {
-  const socket = io('http://localhost:5000');
+export function createSocketClient(url: string) {
+  const socket = io();
 
   socket.on('connect', () => {
-    console.log('Connected to the server');
+    socketClientLogger.log('Connected to the server on '+url);
   });
   
   socket.on('error', (error: any) => {
-    console.error('Socket.io error:', error);
+    socketClientLogger.error('Socket.io error: '+ error);
   });
   
   socket.on('disconnect', () => {
-    console.log('Disconnected from the server');
+    socketClientLogger.log('Disconnected from the server');
   });
 }

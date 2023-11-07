@@ -2,10 +2,12 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
 import {handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, getGameBySocket, } from '../game/game'
+import { socketLogger } from '..';
 
 export function createSocketServer(httpServer: HttpServer) {
 
     const io = new Server(httpServer, config);
+    socketLogger.log('Ready!')
 
     io.on('connection', (socket: Socket) => {
         handleConnection(socket)
