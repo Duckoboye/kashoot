@@ -1,6 +1,6 @@
 import {SerialPort} from 'serialport';
 import {ReadlineParser} from '@serialport/parser-readline';
-import { serialLogger } from '..';
+import { ioc, serialLogger } from '..';
 class Button {
   private id: number;
   private label: string;
@@ -29,6 +29,7 @@ ids.set('1', new Button(1,"Blue"))
 ids.set('2', new Button(2,"Red"))
 ids.set('3', new Button(3,"Yellow"))
 ids.set('4', new Button(4,"Green"))
+ids.set('7', new Button(7, "Start"))
 
 export function createSerialServer(serialPort: string) {
   const port = new SerialPort({ path:serialPort, baudRate: 115200 });
@@ -51,5 +52,10 @@ function parseData(data: string) {
   const value = Number(data.slice(1))
   const button = ids.get(firstChar)
   button.setValue(value)
-  serialLogger.log(`${button.getLabel()} | ${button.getValue()}`)
+  const buttonLabel = button.getLabel()
+  const buttonValue = button.getValue()
+  serialLogger.log(`${buttonLabel} | ${buttonValue}`)
+  if (buttonLabel == 'Start' && buttonValue == true) {
+    serialLogger.log('Start button pressed!')
+  }
 }

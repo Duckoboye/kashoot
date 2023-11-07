@@ -4,6 +4,7 @@
 #define BUTTON_YELLOW 13
 #define BUTTON_RED 14
 #define BUTTON_BLUE 15
+#define BUTTON_START 18
 
 class Button {
 public:
@@ -29,7 +30,7 @@ Button button12(BUTTON_GREEN);
 Button button13(BUTTON_YELLOW);
 Button button14(BUTTON_RED);
 Button button15(BUTTON_BLUE);
-
+Button buttonStart(BUTTON_START);
 void setup() {
   Serial.begin(115200);
 }
@@ -39,4 +40,5 @@ void loop() {
   button13.checkState();
   button14.checkState();
   button15.checkState();
+  buttonStart.checkState();
 }
