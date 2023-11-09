@@ -1,7 +1,8 @@
 import io from 'socket.io-client';
 import { socketClientLogger } from '..';
+import { Socket } from 'socket.io-client';
 
-export function createSocketClient(url: string) {
+export function createSocketClient(url: string): Socket {
   const socket = io();
 
   socket.on('connect', () => {
@@ -15,4 +16,5 @@ export function createSocketClient(url: string) {
   socket.on('disconnect', () => {
     socketClientLogger.log('Disconnected from the server');
   });
+  return socket
 }

@@ -2,6 +2,7 @@ import {SerialPort} from 'serialport';
 import {ReadlineParser} from '@serialport/parser-readline';
 import { serialLogger } from '..';
 import { createSocketClient } from './socket-client';
+import { Socket } from 'socket.io-client';
 class Button {
   private id: number;
   private label: string;
@@ -36,10 +37,11 @@ ids.set('7', new Button(7, "Start"))
 export function createSerialServer(serialPort: string) {
   const port = new SerialPort({ path:serialPort, baudRate: 115200 });
   const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
-  let ioc;
+  let socket: Socket;
   port.on('open', () => {
     serialLogger.log(`Serial port ${serialPort} is open.`);
-    ioc = createSocketClient('http://localhost:5000')
+    socket = createSocketClient('http://localhost:5000')
+    socket.emit('joinGame','bla123') //This should be moved into its own input later on, but this is fine for the MVP.
   });
   parser.on('data', (line: string) => {
     if (line.length === 0) return serialLogger.warn("Received empty data.");
@@ -50,8 +52,9 @@ export function createSerialServer(serialPort: string) {
     component.setValue(value==='1') //Verify whether this works or not
     const buttonLabel = component.getLabel()
     const buttonValue = component.getValue()
-    if (buttonLabel == 'Start' && buttonValue == true) {
+    if (buttonLabel == 'Start' && buttonValue) {
       serialLogger.log('Start button pressed!')
+      socket.emit('GameStartReq')
       }
     }
     
