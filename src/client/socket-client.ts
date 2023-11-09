@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { ioc, socketClientLogger } from '..';
+import { socketClientLogger } from '..';
 
 export function createSocketClient(url: string) {
   const socket = io();
