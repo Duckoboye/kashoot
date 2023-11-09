@@ -2,7 +2,6 @@ import { createSocketServer } from './server/socket';
 import { httpServer } from './server/server'
 import { config } from './utils/utils';
 import Logger from './utils/logger'
-import { createSocketClient } from './client/socket-client';
 import { createSerialServer } from './client/serial';
 
 //Loggers
