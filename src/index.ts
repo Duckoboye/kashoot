@@ -12,8 +12,9 @@ export const socketClientLogger = new Logger('socketio-client')
 export const serialLogger = new Logger('serial')
 
 export const io = createSocketServer(httpServer);
-export const ioc = createSocketClient('http://localhost:5000')
-export const serial = createSerialServer('COM7')
+if (process.env.SERIALPORT){
+  createSerialServer(process.env.SERIALPORT)
+} else {serialLogger.warn('No SERIALPORT in .env found, serial functionality will be disabled.')}
 httpServer.listen(config.port, () => {
     expressLogger.log(`API server listening on http://127.0.0.1:${config.port}`);
   });

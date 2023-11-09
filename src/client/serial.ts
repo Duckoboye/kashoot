@@ -1,6 +1,6 @@
 import {SerialPort} from 'serialport';
 import {ReadlineParser} from '@serialport/parser-readline';
-import { ioc, serialLogger } from '..';
+import { serialLogger } from '..';
 import { createSocketClient } from './socket-client';
 class Button {
   private id: number;
