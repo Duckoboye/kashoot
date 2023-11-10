@@ -40,7 +40,7 @@ export function createSerialServer(serialPort: string) {
   let socket: Socket;
   port.on('open', () => {
     serialLogger.log(`Serial port ${serialPort} is open.`);
-    socket = createSocketClient('http://localhost:5000')
+    socket = createSocketClient('http://localhost:5000', port)
     socket.emit('joinGame','bla123') //This should be moved into its own input later on, but this is fine for the MVP.
   });
   parser.on('data', (line: string) => {
@@ -52,9 +52,13 @@ export function createSerialServer(serialPort: string) {
     component.setValue(!!state) //Verify whether this works or not
     const buttonLabel = component.getLabel()
     const buttonValue = component.getValue()
+    if (buttonValue) {
+      serialLogger.log(buttonLabel+' button pressed!')
+      if (buttonLabel === 'Start') socket.emit('GameStartReq')
+      else socket.emit('GameAnswer', buttonLabel)
+    }
     if (buttonLabel == 'Start' && buttonValue) {
-      serialLogger.log('Start button pressed!')
-      socket.emit('GameStartReq')
+      
       }
     }
     
