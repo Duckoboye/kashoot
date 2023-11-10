@@ -19,6 +19,7 @@ export function createSocketServer(httpServer: HttpServer) {
             joinOrCreateGame(socket, roomId)
         })
         socket.on('GameStartReq', () => {
+            socketLogger.log(`Got GameStartReq from ${socket.id}`)
             startGame(socket)
         });
         socket.on('GameAnswer', (e) => {

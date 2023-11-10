@@ -16,5 +16,8 @@ export function createSocketClient(url: string): Socket {
   socket.on('disconnect', () => {
     socketClientLogger.log('Disconnected from the server');
   });
+  socket.on('GameState', (gameState) => {
+    socketClientLogger.log('GameState: '+gameState);
+})
   return socket
 }
