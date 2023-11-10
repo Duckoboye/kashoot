@@ -1,3 +1,4 @@
+import 'dotenv/config' 
 import { createSocketServer } from './server/socket';
 import { httpServer } from './server/server'
 import { config } from './utils/utils';

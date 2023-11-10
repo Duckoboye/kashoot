@@ -46,10 +46,10 @@ export function createSerialServer(serialPort: string) {
   parser.on('data', (line: string) => {
     if (line.length === 0) return serialLogger.warn("Received empty data.");
     const [ firstChar, value ] = parseData(line)
-
+    const state = Number(value)
     const component = ids.get(firstChar)
     if (component instanceof Button) {
-    component.setValue(value==='1') //Verify whether this works or not
+    component.setValue(!!state) //Verify whether this works or not
     const buttonLabel = component.getLabel()
     const buttonValue = component.getValue()
     if (buttonLabel == 'Start' && buttonValue) {
