@@ -2,7 +2,7 @@ import {SerialPort} from 'serialport';
 import {ReadlineParser} from '@serialport/parser-readline';
 import { serialLogger } from '..';
 import { createSocketClient } from './socket-client';
-import { Socket } from 'socket.io-client';
+import { type Socket } from 'socket.io-client';
 class Button {
   private id: number;
   private label: string;

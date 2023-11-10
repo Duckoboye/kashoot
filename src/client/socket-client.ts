@@ -3,7 +3,7 @@ import { socketClientLogger } from '..';
 import { Socket } from 'socket.io-client';
 
 export function createSocketClient(url: string): Socket {
-  const socket = io();
+  const socket = io(url);
 
   socket.on('connect', () => {
     socketClientLogger.log('Connected to the server on '+url);
