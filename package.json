@@ -2,12 +2,10 @@
   "name": "kashoot",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "dist/index.js",
   "scripts": {
-    "install-both": "npm install && npm install --prefix client",
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "npm run server",
     "server": "nodemon dist/index.js",
-    "dev-server": "concurrently \"npx tsc --watch\" \"npm run server\"",
     "dev": "concurrently \"npx tsc --watch\" \"npm run server\"",
     "test": "npx mocha -r ts-node/register test/*.test.ts"
   },
