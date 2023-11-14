@@ -42,7 +42,7 @@ void setup() {
   lcd.setCursor(0,0);
   lcd.print("Kashoot starting...");
 }
-
+String receivedData = "";
 void loop() {
   button12.checkState();
   button13.checkState();
@@ -50,15 +50,39 @@ void loop() {
   button15.checkState();
   buttonStart.checkState();
 
-  if (Serial.available()) {
+  if (Serial.available() > 0) {
     // wait a bit for the entire message to arrive
-    delay(100);
     // clear the screen
-    lcd.clear();
-    // read all the available characters
-    while (Serial.available() > 0) {
-      // display each character to the LCD
-      lcd.write(Serial.read());
+    int incomingByte = Serial.read();
+    if (incomingByte == 10) {
+      lcd.clear();
+      splitAndDisplay(receivedData, lcd);
+      Serial.println(receivedData);
+      receivedData = "";
     }
+    else {
+      receivedData += char(incomingByte);
+    }
+  }
+}
+
+void splitAndDisplay(String inputString, LiquidCrystal_I2C lcd) {
+  // Ensure the LCD is ready
+  if (inputString.length() <= 16) {
+    // If the string is 16 characters or less, display it on the first line
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(inputString);
+  } else {
+    // If the string is longer than 16 characters, split it into two parts
+    String part1 = inputString.substring(0, 16);
+    String part2 = inputString.substring(16);
+
+    // Display the two parts on the LCD's two lines
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(part1);
+    lcd.setCursor(0, 1);
+    lcd.print(part2);
   }
 }
