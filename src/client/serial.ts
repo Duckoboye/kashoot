@@ -1,4 +1,4 @@
-import { SerialPort } from 'serialport';
+import { SerialPort, SerialPortMock } from 'serialport';
 import { ReadlineParser } from '@serialport/parser-readline';
 import { serialLogger } from '..';
 import { createSocketClient } from './socket-client';
@@ -34,8 +34,12 @@ ids.set('3', new Button(3, "Yellow"))
 ids.set('4', new Button(4, "Green"))
 ids.set('7', new Button(7, "Start"))
 
-export function createSerialServer(serialPort: string) {
-  const port = new SerialPort({ path: serialPort, baudRate: 115200 });
+export function createSerialPort(path: string): SerialPort {
+  const port = new SerialPort({ path, baudRate: 115200 })
+  return port
+}
+
+export function createSerialServer(port: SerialPort | SerialPortMock) {
   const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
   let socket: Socket;
 
@@ -62,7 +66,7 @@ export function createSerialServer(serialPort: string) {
   }
 
   function handlePortOpen() {
-    serialLogger.log(`Serial port ${serialPort} is open.`);
+    serialLogger.log(`Serial port ${port.path} is open.`);
     socket = createSocketClient('http://localhost:5000', port); //should be configurable or automatically assigned in the future.
     socket.emit('joinGame', 'bla123');
   }

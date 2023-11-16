@@ -1,9 +1,9 @@
 import io from 'socket.io-client';
 import { socketClientLogger } from '..';
 import { Socket } from 'socket.io-client';
-import { SerialPort } from 'serialport';
+import { SerialPort, SerialPortMock } from 'serialport';
 
-export function createSocketClient(url: string, serialPort: SerialPort): Socket {
+export function createSocketClient(url: string, serialPort: SerialPort | SerialPortMock): Socket {
   const socket = io(url);
 
   function handleConnect() {
