@@ -2,7 +2,9 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
 import {handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, getGameBySocket, } from '../game/game'
-import { socketLogger } from '..';
+import Logger from '../utils/logger';
+
+export const socketLogger = new Logger('socketio-server')
 
 export function createSocketServer(httpServer: HttpServer) {
 
@@ -16,11 +18,11 @@ export function createSocketServer(httpServer: HttpServer) {
             handleDisconnect(socket)
         });
         socket.on('joinGame', (roomId) => {
-            joinOrCreateGame(socket, roomId)
+            joinOrCreateGame(socket, io, roomId)
         })
         socket.on('GameStartReq', () => {
             socketLogger.log(`Got GameStartReq from ${socket.id}`)
-            startGame(socket)
+            startGame(socket, io)
         });
         socket.on('GameAnswer', (e) => {
             handleAnswer(socket, e)

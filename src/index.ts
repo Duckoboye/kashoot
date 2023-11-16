@@ -1,14 +1,11 @@
 import 'dotenv/config'
-import Logger from './utils/logger'
 import { createSerialPort, createSerialServer } from './client/serial';
 import {config} from './utils/utils'
 import { createExpressServer } from './server/server';
-
-//Loggers
-export const socketLogger = new Logger('socketio-server')
-
+import { createSocketServer } from './server/socket';
 
 if (process.env.SERIALPORT) {
   createSerialServer(createSerialPort(process.env.SERIALPORT))
 }
-export const io = createExpressServer(config.port)
+const httpServer = createExpressServer(config.port)
+export const io = createSocketServer(httpServer);

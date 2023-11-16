@@ -42,11 +42,11 @@ export function createSerialPort(path: string): SerialPort {
 }
 
 export function createSerialServer(port: SerialPort | SerialPortMock) {
+  serialLogger.log('serialport created')
   const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
   let socket: Socket;
 
   function handleDataReceived(line: string) {
-    serialLogger.log(line)
     if (line.length === 0) {
       serialLogger.warn("Received empty data.");
       return;
