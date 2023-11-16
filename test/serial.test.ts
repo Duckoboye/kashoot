@@ -21,9 +21,28 @@ describe('Serial Logic Tests', () => {
   
       createSerialServer(port);
   
-      port.on('open', done);
+      port.on('open', () => {
+        setTimeout(done,1000)
+      });
     });
   
+    it('should receive data',() => {
+        port.port?.emitData('1test\n')
+    })
+    it('should be able to take input from buttons', () => {
+        port.port?.emitData('11\n')
+        port.port?.emitData('21\n')
+        port.port?.emitData('31\n')
+        port.port?.emitData('41\n')
+        port.port?.emitData('10\n')
+        port.port?.emitData('20\n')
+        port.port?.emitData('30\n')
+        port.port?.emitData('40\n')
+    })
+    it('should be able to start a game', () => {
+        port.port?.emitData('71\n')
+    })
+
     after(() => {
       httpServer.close();
       socketServer.close();
