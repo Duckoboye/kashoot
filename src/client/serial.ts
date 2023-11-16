@@ -1,8 +1,10 @@
-import { SerialPort, SerialPortMock } from 'serialport';
+import { SerialPort, type SerialPortMock } from 'serialport';
 import { ReadlineParser } from '@serialport/parser-readline';
-import { serialLogger } from '..';
 import { createSocketClient } from './socket-client';
 import { type Socket } from 'socket.io-client';
+import Logger from '../utils/logger';
+
+export const serialLogger = new Logger('serial')
 class Button {
   private id: number;
   private label: string;
@@ -44,6 +46,7 @@ export function createSerialServer(port: SerialPort | SerialPortMock) {
   let socket: Socket;
 
   function handleDataReceived(line: string) {
+    serialLogger.log(line)
     if (line.length === 0) {
       serialLogger.warn("Received empty data.");
       return;
