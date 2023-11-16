@@ -67,13 +67,15 @@ export function createSerialServer(serialPort: string) {
     socket.emit('joinGame', 'bla123');
   }
 
+  function handleError(err: Error) {
+    serialLogger.error('Error: ' + err.message);
+  }
+
   port.on('open', handlePortOpen);
 
   parser.on('data', handleDataReceived);
 
-  port.on('error', (err: Error) => {
-    serialLogger.error('Error: ' + err.message);
-  });
+  port.on('error', handleError);
 }
 
 function parseData(data: string): [string, string] {
