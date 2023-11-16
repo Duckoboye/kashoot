@@ -45,7 +45,7 @@ export function createSerialServer(port: SerialPort | SerialPortMock) {
   serialLogger.log('serialport created')
   const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
   let socket: Socket;
-
+  let gameStarted: boolean;
   function handleDataReceived(line: string) {
     if (line.length === 0) {
       serialLogger.warn("Received empty data.");
@@ -62,8 +62,11 @@ export function createSerialServer(port: SerialPort | SerialPortMock) {
 
       if (buttonValue) {
         serialLogger.log(buttonLabel + ' button pressed!');
-        if (buttonLabel === 'Start') socket.emit('GameStartReq');
-        else socket.emit('GameAnswer', buttonLabel);
+        if (buttonLabel === 'Start') {
+          socket.emit('GameStartReq');
+          gameStarted = true;
+        }
+        else if (gameStarted) socket.emit('GameAnswer', buttonLabel);
       }
     }
   }
