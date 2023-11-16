@@ -1,29 +1,38 @@
 import io from 'socket.io-client';
 import { socketClientLogger } from '..';
 import { Socket } from 'socket.io-client';
-import { type SerialPort } from 'serialport';
+import { SerialPort } from 'serialport';
 
 export function createSocketClient(url: string, serialPort: SerialPort): Socket {
   const socket = io(url);
 
-  socket.on('connect', () => {
-    socketClientLogger.log('Connected to the server on '+url);
-  });
-  
-  socket.on('error', (error: any) => {
-    socketClientLogger.error('Socket.io error: '+ error);
-  });
-  
-  socket.on('disconnect', () => {
+  function handleConnect() {
+    socketClientLogger.log('Connected to the server on ' + url);
+  }
+
+  function handleError(error: any) {
+    socketClientLogger.error('Socket.io error: ' + error);
+  }
+
+  function handleDisconnect() {
     socketClientLogger.log('Disconnected from the server');
-  });
-  socket.on('GameState', (gameState) => {
-    socketClientLogger.log('GameState: '+gameState);
+  }
+
+  function handleGameState(gameState: any) {
+    socketClientLogger.log('GameState: ' + gameState);
     serialPort.write(gameState);
-  });
-  socket.on('GameQuestion', (question) => {
-    socketClientLogger.log('Question: '+question);
+  }
+
+  function handleGameQuestion(question: any) {
+    socketClientLogger.log('Question: ' + question);
     serialPort.write(question);
-  })
-  return socket
+  }
+
+  socket.on('connect', handleConnect);
+  socket.on('error', handleError);
+  socket.on('disconnect', handleDisconnect);
+  socket.on('GameState', handleGameState);
+  socket.on('GameQuestion', handleGameQuestion);
+
+  return socket;
 }
