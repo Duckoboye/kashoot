@@ -8,6 +8,9 @@ export const socketClientLogger = new Logger('socketio-client')
 export function createSocketClient(url: string, serialPort: SerialPort | SerialPortMock): Socket {
   const socket = io(url);
 
+  function sendToSerial(s: string) {
+    serialPort.write(s+'\n')
+  }
   function handleConnect() {
     socketClientLogger.log('Connected to the server on ' + url);
   }
@@ -19,15 +22,15 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
   function handleDisconnect() {
     socketClientLogger.log('Disconnected from the server');
   }
-
+  const newlineChar = String.fromCharCode(10);
   function handleGameState(gameState: any) {
     socketClientLogger.log('GameState: ' + gameState);
-    serialPort.write(gameState);
+    sendToSerial(gameState)
   }
 
   function handleGameQuestion(question: any) {
     socketClientLogger.log('Question: ' + question);
-    serialPort.write(question);
+    sendToSerial(question)
   }
 
   socket.on('connect', handleConnect);
