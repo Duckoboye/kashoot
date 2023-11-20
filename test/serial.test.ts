@@ -50,7 +50,15 @@ describe('Serial Logic Tests', () => {
     it('should be able to answer a second question', (done) => {
       port.port?.emitData('11\n')
       setTimeout(done, 200)
-  })
+    })
+    it('should be able to answer a question incorrectly', (done) => {
+      port.port?.emitData('21\n')
+      setTimeout(done, 200)
+    })
+    it('should be able to answer all questions', (done) => {
+      port.port?.emitData('11\n')
+      setTimeout(done, 200)
+    })
 
     after(() => {
       httpServer.close();
