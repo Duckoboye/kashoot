@@ -30,26 +30,23 @@ interface Game {
     answers: Set<Answer>;
 }
 
-function handleAnswer(socket: Socket, data: any) {
+function handleAnswer(socket: Socket, data: any, io: Server) {
     const game = getGameBySocket(socket)
     if (game.gameState !== 'running') return socketLogger.warn(`${socket.id} tried to send answer before game started`)
     const answer:Answer = {userId: socket.id, answer:data, roundId: game.currentRound}
     game.answers.add(answer)
     socketLogger.log(`${socket.id} answered question with ${data}`)
 
-    /*pscode
-    game = getGameBySocket(socket)
+    socketLogger.debug(`clients: ${game.clients} | ${game.answers}`)
 
-    if game.gamestate != 'running'
-    return
-
-    validateAndRegisterAnswer()
-
-    if answers.count === clients.count
-    
-    calculateRoundResults
-    ++game.currentRound>game.questions.length?startRound():endGame()
-    */
+    let count = 0;
+    game.answers.forEach((value) => {
+        if (value.roundId === game.currentRound) count++
+        console.log(`${value.roundId}, ${game.currentRound}`)
+    })
+    if (count >= game.clients.size)
+    socketLogger.log(`all clients have answered, proceeding..`)
+    ++game.currentRound>game.questions.length?startRound(socket, io):endGame(socket)
 }
 function joinOrCreateGame(socket: Socket, io: Server, roomId: string) {
     if (!activeGames[roomId]) {
@@ -106,18 +103,19 @@ function startGame(socket: Socket, io: Server) {
     setTimeout(() => {
         game.gameState = 'running';
         emitGameState(socket, io, game);
-        startRound(socket, io, game);
+        startRound(socket, io);
     }, 1000);
 
 }
 function endGame(socket: Socket) {
-    throw new Error('Function not implemented.');
+    socketLogger.log('game ended')
     /* pscode
     change gamestate to finished
     remove game roomid from activeGames list
     */
 }
-function startRound(socket: Socket, io: Server, game: Game) {
+function startRound(socket: Socket, io: Server) {
+    const game = getGameBySocket(socket)
     const { question } = game.questions[game.currentRound]
     broadcastToUsersRoom(socket, io, 'GameQuestion', question)
 }

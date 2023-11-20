@@ -25,7 +25,7 @@ export function createSocketServer(httpServer: HttpServer) {
             startGame(socket, io)
         });
         socket.on('GameAnswer', (e) => {
-            handleAnswer(socket, e)
+            handleAnswer(socket, e, io)
         });
         socket.on('getGameState', () => {
             socket.emit('gameState', getGameBySocket(socket).gameState)
