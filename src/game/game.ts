@@ -12,7 +12,6 @@ interface Question {
 interface Answer {
     userId: string;
     answer: string;
-    questionId: number;
     roundId: number;
 }
 interface RoundResults {
@@ -31,8 +30,11 @@ interface Game {
     answers: Answer[];
 }
 
-function handleAnswer(socket: Socket, roomId: any) {
-    throw new Error('Function not implemented.');
+function handleAnswer(socket: Socket, data: any) {
+    const game = getGameBySocket(socket)
+    if (game.gameState !== 'running') return socketLogger.warn(`${socket.id} tried to send answer before game started`)
+    const answer:Answer = {userId: socket.id, answer:data, roundId: game.currentRound}
+    game.answers.push(answer)
     /*pscode
     game = getGameBySocket(socket)
 
