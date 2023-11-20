@@ -74,7 +74,6 @@ export function createSerialServer(port: SerialPort | SerialPortMock) {
   function handlePortOpen() {
     serialLogger.log(`Serial port ${port.path} is open.`);
     socket = createSocketClient('http://localhost:5000', port); //should be configurable or automatically assigned in the future.
-    socket.emit('joinGame', 'bla123');
   }
 
   function handleError(err: Error) {

@@ -13,6 +13,7 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
   }
   function handleConnect() {
     socketClientLogger.log('Connected to the server on ' + url);
+    socket.emit('joinGame', 'bla123');
   }
 
   function handleError(error: any) {
@@ -22,7 +23,7 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
   function handleDisconnect() {
     socketClientLogger.log('Disconnected from the server');
   }
-  const newlineChar = String.fromCharCode(10);
+  
   function handleGameState(gameState: any) {
     socketClientLogger.log('GameState: ' + gameState);
     sendToSerial(gameState)
