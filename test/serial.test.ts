@@ -39,8 +39,13 @@ describe('Serial Logic Tests', () => {
         port.port?.emitData('30\n')
         port.port?.emitData('40\n')
     })
-    it('should be able to start a game', () => {
+    it('should be able to start a game', (done) => {
         port.port?.emitData('71\n')
+        setTimeout(done, 1500)
+    })
+    it('should be able to answer a question', (done) => {
+        port.port?.emitData('11\n')
+        setTimeout(done, 200)
     })
 
     after(() => {

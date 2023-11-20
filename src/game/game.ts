@@ -27,14 +27,16 @@ interface Game {
     questions: Question[];
     results: Record<number, RoundResults>;
     clients: Set<string>;
-    answers: Answer[];
+    answers: Set<Answer>;
 }
 
 function handleAnswer(socket: Socket, data: any) {
     const game = getGameBySocket(socket)
     if (game.gameState !== 'running') return socketLogger.warn(`${socket.id} tried to send answer before game started`)
     const answer:Answer = {userId: socket.id, answer:data, roundId: game.currentRound}
-    game.answers.push(answer)
+    game.answers.add(answer)
+    socketLogger.log(`${socket.id} answered question with ${data}`)
+
     /*pscode
     game = getGameBySocket(socket)
 
@@ -81,7 +83,7 @@ function joinOrCreateGame(socket: Socket, io: Server, roomId: string) {
             },],
             results: {},
             clients: new Set(),
-            answers: []
+            answers: new Set()
         }
     }
 
