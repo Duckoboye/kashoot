@@ -33,19 +33,33 @@ interface Game {
 function handleAnswer(socket: Socket, data: any, io: Server) {
     const game = getGameBySocket(socket)
     if (game.gameState !== 'running') return socketLogger.warn(`${socket.id} tried to send answer before game started`)
-    const answer:Answer = {userId: socket.id, answer:data, roundId: game.currentRound}
+    const answer: Answer = { userId: socket.id, answer: data, roundId: game.currentRound }
     game.answers.add(answer)
     socketLogger.log(`${socket.id} answered question with ${data}`)
-
-    socketLogger.debug(`clients: ${game.clients} | ${game.answers}`)
 
     let count = 0;
     game.answers.forEach((value) => {
         if (value.roundId === game.currentRound) count++
     })
     if (count >= game.clients.size)
-    socketLogger.log(`all clients have answered, proceeding..`)
-    ++game.currentRound<game.questions.length?startRound(socket, io):endGame(socket) //This might genuinely be the most hacky code I've ever produced.
+        socketLogger.log(`all clients have answered, proceeding..`)
+    // This checks whether answer is correct or not
+    const { correctAnswer } = game.questions[game.currentRound]
+    game.answers.forEach((ans) => {
+        if (ans.roundId !== game.currentRound) return
+        const answerMap = new Map()
+        answerMap.set("Blue", 0)
+        answerMap.set("Red", 1)
+        answerMap.set("Yellow", 2)
+        answerMap.set("Green", 3)
+        const answerCorrect = answerMap.get(ans.answer) == correctAnswer
+        socketLogger.debug(`answer is... ${answerCorrect}`)
+        const socket = getSocketById(answer.userId, io)
+        socket?.emit(`question${answerCorrect?'C':'Inc'}orrect`)
+        console.log(`question${answerCorrect?'C':'Inc'}orrect`)
+    })
+
+    ++game.currentRound < game.questions.length ? startRound(socket, io) : endGame(socket) //This might genuinely be the most hacky code I've ever produced.
 }
 function joinOrCreateGame(socket: Socket, io: Server, roomId: string) {
     if (!activeGames[roomId]) {
@@ -146,6 +160,9 @@ function userHasGame(socket: Socket): boolean {
 function getGameState(socket: Socket) {
     const game = getGameBySocket(socket)
     return game.gameState
+}
+function getSocketById(uid: string, io: Server) {
+    return io.sockets.sockets.get(uid)
 }
 
 export { handleAnswer, joinOrCreateGame, startGame, endGame, handleConnection, handleDisconnect, userHasGame, getGameBySocket, getGameState }
