@@ -42,11 +42,10 @@ function handleAnswer(socket: Socket, data: any, io: Server) {
     let count = 0;
     game.answers.forEach((value) => {
         if (value.roundId === game.currentRound) count++
-        console.log(`${value.roundId}, ${game.currentRound}`)
     })
     if (count >= game.clients.size)
     socketLogger.log(`all clients have answered, proceeding..`)
-    ++game.currentRound>game.questions.length?startRound(socket, io):endGame(socket)
+    ++game.currentRound<game.questions.length?startRound(socket, io):endGame(socket) //This might genuinely be the most hacky code I've ever produced.
 }
 function joinOrCreateGame(socket: Socket, io: Server, roomId: string) {
     if (!activeGames[roomId]) {
