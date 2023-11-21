@@ -124,7 +124,14 @@ function endGame(socket: Socket, io: Server) {
     const game = getGameBySocket(socket)
     game.gameState = 'finished';
     emitGameState(socket, io, game);
-    socketLogger.log(`winner: ${getWinner(game)}`)
+    const winner = getWinner(game)
+    if (winner) {
+        socketLogger.log(`winner: ${winner}`)
+        const winnerSocket = getSocketById(winner, io)
+        if (!winnerSocket) return
+        broadcastToUsersRoom(winnerSocket, io, 'GameWin', `${winner} won!`)
+        winnerSocket?.emit('GameWin')
+    }
     /* pscode
     change gamestate to finished
     remove game roomid from activeGames list
