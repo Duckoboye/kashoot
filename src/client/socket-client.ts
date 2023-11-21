@@ -24,9 +24,14 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
     socketClientLogger.log('Disconnected from the server');
   }
   
-  function handleGameState(gameState: any) {
+  function handleGameState(gameState: string) {
     socketClientLogger.log('GameState: ' + gameState);
+    if (gameState === 'finished') return handleGameEnd();
     sendToSerial(gameState)
+  }
+  function handleGameEnd() {
+    socketClientLogger.log('Game is over!');
+    sendToSerial('game ended')
   }
 
   function handleGameQuestion(question: any) {
