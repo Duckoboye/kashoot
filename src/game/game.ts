@@ -29,36 +29,45 @@ interface Game {
     clients: Set<string>;
     answers: Set<Answer>;
 }
+enum GameState {
+    Stopped = 'stopped',
+    Starting = 'starting',
+    Running = 'running',
+    Finished = 'finished',
+}
+const AnswerMap = new Map<string, number>([
+    ['Blue', 0],
+    ['Red', 1],
+    ['Yellow', 2],
+    ['Green', 3],
+]);
+function handleAnswer(socket: Socket, data: string, io: Server) {
+    const game = getGameBySocket(socket);
+    if (game.gameState !== GameState.Running) {
+        return socketLogger.warn(`${socket.id} tried to send answer before game started`);
+    }
 
-function handleAnswer(socket: Socket, data: any, io: Server) {
-    const game = getGameBySocket(socket)
-    if (game.gameState !== 'running') return socketLogger.warn(`${socket.id} tried to send answer before game started`)
-    const answer: Answer = { userId: socket.id, answer: data, roundId: game.currentRound }
-    game.answers.add(answer)
-    socketLogger.log(`${socket.id} answered question with ${data}`)
+    const answer: Answer = { userId: socket.id, answer: data, roundId: game.currentRound };
+    game.answers.add(answer);
+    socketLogger.log(`${socket.id} answered question with ${data}`);
 
-    let count = 0;
-    game.answers.forEach((value) => {
-        if (value.roundId === game.currentRound) count++
-    })
-    if (count >= game.clients.size)
-        socketLogger.log(`all clients have answered, proceeding..`)
-    // This checks whether answer is correct or not
-    const { correctAnswer } = game.questions[game.currentRound]
+    const correctAnswer = game.questions[game.currentRound].correctAnswer;
+
     game.answers.forEach((ans) => {
-        if (ans.roundId !== game.currentRound) return
-        const answerMap = new Map()
-        answerMap.set("Blue", 0)
-        answerMap.set("Red", 1)
-        answerMap.set("Yellow", 2)
-        answerMap.set("Green", 3)
-        const answerCorrect = answerMap.get(ans.answer) == correctAnswer
-        socketLogger.debug(`answer is... ${answerCorrect}`)
-        const socket = getSocketById(answer.userId, io)
-        socket?.emit(`question${answerCorrect ? 'C' : 'Inc'}orrect`)
-    })
+        if (ans.roundId !== game.currentRound) return;
 
-    ++game.currentRound < game.questions.length ? startRound(socket, io) : endGame(socket, io) //This might genuinely be the most hacky code I've ever produced.
+        const answerCorrect = AnswerMap.get(ans.answer) === correctAnswer;
+        socketLogger.debug(`answer is... ${answerCorrect}`);
+
+        const socket = getSocketById(ans.userId, io);
+        socket?.emit(`question${answerCorrect ? 'C' : 'Inc'}orrect`);
+    });
+
+    if (++game.currentRound < game.questions.length) {
+        startRound(socket, io);
+    } else {
+        endGame(socket, io);
+    }
 }
 function joinOrCreateGame(socket: Socket, io: Server, roomId: string) {
     if (!activeGames[roomId]) {
@@ -105,36 +114,34 @@ function joinOrCreateGame(socket: Socket, io: Server, roomId: string) {
     emitGameState(socket, io, game)
 }
 function startGame(socket: Socket, io: Server) {
-    const game = getGameBySocket(socket)
-    if (game.gameState !== 'stopped')
-        return //do not try to start two games at once. 
+    const game = getGameBySocket(socket);
+    if (game.gameState !== GameState.Stopped) return;
 
-    game.gameState = 'starting';
+    game.gameState = GameState.Starting;
     emitGameState(socket, io, game);
 
     setTimeout(() => {
-        game.gameState = 'running';
+        game.gameState = GameState.Running;
         emitGameState(socket, io, game);
         startRound(socket, io);
     }, 1000);
-
 }
 function endGame(socket: Socket, io: Server) {
-    socketLogger.log('game ended')
-    const game = getGameBySocket(socket)
-    game.gameState = 'finished';
+    socketLogger.log('game ended');
+    const game = getGameBySocket(socket);
+    game.gameState = GameState.Finished;
     emitGameState(socket, io, game);
-    const winner = getWinner(game)
+
+    const winner = getWinner(game);
     if (winner) {
-        socketLogger.log(`winner: ${winner}`)
-        const winnerSocket = getSocketById(winner, io)
-        if (!winnerSocket) return
-        broadcastToUsersRoom(winnerSocket, io, 'GameWin', winner)
+        socketLogger.log(`winner: ${winner}`);
+        const winnerSocket = getSocketById(winner, io);
+        if (!winnerSocket) return;
+        broadcastToUsersRoom(winnerSocket, io, 'GameWin', winner);
     }
-    /* pscode
-    change gamestate to finished
-    remove game roomid from activeGames list
-    */
+
+    // Remove the game roomID from activeGames list
+    delete activeGames[game.roomId];
 }
 function startRound(socket: Socket, io: Server) {
     const game = getGameBySocket(socket)
@@ -177,23 +184,12 @@ function calculateScores(game: Game): Record<string, number> {
     const { questions, answers } = game;
     const userScores: Record<string, number> = {};
 
-    const answerMap = new Map() //By god please refactor this. This is a terrible implementation
-        answerMap.set("Blue", 0)
-        answerMap.set("Red", 1)
-        answerMap.set("Yellow", 2)
-        answerMap.set("Green", 3)
-
-    // Iterate through each answer
     answers.forEach((answer) => {
-        const question = questions.find((q) => q.id === answer.roundId);
+        const { roundId, userId, answer: userAnswer } = answer;
+        const question = questions.find((q) => q.id === roundId);
 
-        // Ensure the question exists and the answer is correct
-        if (question && +answerMap.get(answer.answer) === question.correctAnswer) {
-            if (!userScores[answer.userId]) {
-                userScores[answer.userId] = 1;
-            } else {
-                userScores[answer.userId]++;
-            }
+        if (question && AnswerMap.get(userAnswer) === question.correctAnswer) {
+            userScores[userId] = (userScores[userId] || 0) + 1;
         }
     });
 
