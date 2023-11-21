@@ -10,14 +10,14 @@
 
 class Button {
 public:
-  Button(int pin) : pin(pin), state(HIGH) {
-    pinMode(pin, INPUT); // Set the pin as input without internal pull-up resistor
+  Button(int pin, int id) : pin(pin), id(id), state(HIGH) {
+    pinMode(pin, INPUT);
   }
 
   void checkState() {
     int newState = digitalRead(pin);
     if (newState != state) {
-      Serial.print(pin-11); //Father forgive me, for I have sinned.
+      Serial.print(id);
       Serial.println(newState);
       state = newState;
     }
@@ -25,60 +25,60 @@ public:
 
 private:
   int pin;
+  int id;
   int state;
 };
 
-Button button12(BUTTON_GREEN);
-Button button13(BUTTON_YELLOW);
-Button button14(BUTTON_RED);
-Button button15(BUTTON_BLUE);
-Button buttonStart(BUTTON_START);
-LiquidCrystal_I2C lcd(0x27,16,2); 
+Button buttonGreen(BUTTON_GREEN, 1);
+Button buttonYellow(BUTTON_YELLOW, 2);
+Button buttonRed(BUTTON_RED, 3);
+Button buttonBlue(BUTTON_BLUE, 4);
+Button buttonStart(BUTTON_START, 7);
+LiquidCrystal_I2C lcd(0x27, 16, 2); 
 
 void setup() {
   Serial.begin(115200);
   lcd.init();
   lcd.backlight();
-  lcd.setCursor(0,0);
+  lcd.setCursor(0, 0);
   lcd.print("Kashoot starting...");
 }
+
 String receivedData = "";
+
 void loop() {
-  button12.checkState();
-  button13.checkState();
-  button14.checkState();
-  button15.checkState();
+  buttonGreen.checkState();
+  buttonYellow.checkState();
+  buttonRed.checkState();
+  buttonBlue.checkState();
   buttonStart.checkState();
 
+  handleSerial();
+}
+
+void handleSerial() {
   if (Serial.available() > 0) {
-    // wait a bit for the entire message to arrive
-    // clear the screen
     int incomingByte = Serial.read();
-    if (incomingByte == 10) {
+    if (incomingByte == '\n') {
       lcd.clear();
       splitAndDisplay(receivedData, lcd);
       Serial.println(receivedData);
       receivedData = "";
-    }
-    else {
+    } else {
       receivedData += char(incomingByte);
     }
   }
 }
 
 void splitAndDisplay(String inputString, LiquidCrystal_I2C lcd) {
-  // Ensure the LCD is ready
   if (inputString.length() <= 16) {
-    // If the string is 16 characters or less, display it on the first line
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(inputString);
   } else {
-    // If the string is longer than 16 characters, split it into two parts
     String part1 = inputString.substring(0, 16);
     String part2 = inputString.substring(16);
 
-    // Display the two parts on the LCD's two lines
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(part1);
