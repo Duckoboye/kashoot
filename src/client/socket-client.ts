@@ -33,12 +33,23 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
     socketClientLogger.log('Question: ' + question);
     sendToSerial(question)
   }
+  function handleQuestionIncorrect(question: string) {
+    socketClientLogger.log('Incorrect :(');
+    sendToSerial('placeholder-incorrect')
+  }
+
+  function handleQuestionCorrect(question: string) {
+    socketClientLogger.log('Correct :D');
+    sendToSerial('placeholder-correct')
+  }
 
   socket.on('connect', handleConnect);
   socket.on('error', handleError);
   socket.on('disconnect', handleDisconnect);
   socket.on('GameState', handleGameState);
   socket.on('GameQuestion', handleGameQuestion);
+  socket.on('questionIncorrect', handleQuestionIncorrect);
+  socket.on('questionCorrect', handleQuestionCorrect);
 
   return socket;
 }
