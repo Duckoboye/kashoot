@@ -59,7 +59,7 @@ function handleAnswer(socket: Socket, data: any, io: Server) {
         console.log(`question${answerCorrect?'C':'Inc'}orrect`)
     })
 
-    ++game.currentRound < game.questions.length ? startRound(socket, io) : endGame(socket) //This might genuinely be the most hacky code I've ever produced.
+    ++game.currentRound < game.questions.length ? startRound(socket, io) : endGame(socket, io) //This might genuinely be the most hacky code I've ever produced.
 }
 function joinOrCreateGame(socket: Socket, io: Server, roomId: string) {
     if (!activeGames[roomId]) {
@@ -120,8 +120,11 @@ function startGame(socket: Socket, io: Server) {
     }, 1000);
 
 }
-function endGame(socket: Socket) {
+function endGame(socket: Socket, io: Server) {
     socketLogger.log('game ended')
+    const game = getGameBySocket(socket)
+    game.gameState = 'finished';
+    emitGameState(socket, io, game);
     /* pscode
     change gamestate to finished
     remove game roomid from activeGames list
