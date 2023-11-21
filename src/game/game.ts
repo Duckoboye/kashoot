@@ -55,8 +55,7 @@ function handleAnswer(socket: Socket, data: any, io: Server) {
         const answerCorrect = answerMap.get(ans.answer) == correctAnswer
         socketLogger.debug(`answer is... ${answerCorrect}`)
         const socket = getSocketById(answer.userId, io)
-        socket?.emit(`question${answerCorrect?'C':'Inc'}orrect`)
-        console.log(`question${answerCorrect?'C':'Inc'}orrect`)
+        socket?.emit(`question${answerCorrect ? 'C' : 'Inc'}orrect`)
     })
 
     ++game.currentRound < game.questions.length ? startRound(socket, io) : endGame(socket, io) //This might genuinely be the most hacky code I've ever produced.
@@ -125,6 +124,7 @@ function endGame(socket: Socket, io: Server) {
     const game = getGameBySocket(socket)
     game.gameState = 'finished';
     emitGameState(socket, io, game);
+    socketLogger.log(`winner: ${getWinner(game)}`)
     /* pscode
     change gamestate to finished
     remove game roomid from activeGames list
@@ -166,6 +166,46 @@ function getGameState(socket: Socket) {
 }
 function getSocketById(uid: string, io: Server) {
     return io.sockets.sockets.get(uid)
+}
+function calculateScores(game: Game): Record<string, number> {
+    const { questions, answers } = game;
+    const userScores: Record<string, number> = {};
+
+    const answerMap = new Map() //By god please refactor this. This is a terrible implementation
+        answerMap.set("Blue", 0)
+        answerMap.set("Red", 1)
+        answerMap.set("Yellow", 2)
+        answerMap.set("Green", 3)
+
+    // Iterate through each answer
+    answers.forEach((answer) => {
+        const question = questions.find((q) => q.id === answer.roundId);
+
+        // Ensure the question exists and the answer is correct
+        if (question && +answerMap.get(answer.answer) === question.correctAnswer) {
+            if (!userScores[answer.userId]) {
+                userScores[answer.userId] = 1;
+            } else {
+                userScores[answer.userId]++;
+            }
+        }
+    });
+
+    return userScores;
+}
+function getWinner(game: Game): string | null {
+    const userScores = calculateScores(game);
+    let maxScore = 0;
+    let winner: string | null = null;
+
+    Object.entries(userScores).forEach(([userId, score]) => {
+        if (score > maxScore) {
+            maxScore = score;
+            winner = userId;
+        }
+    });
+
+    return winner;
 }
 
 export { handleAnswer, joinOrCreateGame, startGame, endGame, handleConnection, handleDisconnect, userHasGame, getGameBySocket, getGameState }
