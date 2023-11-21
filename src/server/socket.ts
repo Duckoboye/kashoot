@@ -2,10 +2,14 @@ import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
 import {handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, getGameBySocket, } from '../game/game'
+import Logger from '../utils/logger';
+
+export const socketLogger = new Logger('socketio-server')
 
 export function createSocketServer(httpServer: HttpServer) {
 
     const io = new Server(httpServer, config);
+    socketLogger.log('Ready!')
 
     io.on('connection', (socket: Socket) => {
         handleConnection(socket)
@@ -14,13 +18,14 @@ export function createSocketServer(httpServer: HttpServer) {
             handleDisconnect(socket)
         });
         socket.on('joinGame', (roomId) => {
-            joinOrCreateGame(socket, roomId)
+            joinOrCreateGame(socket, io, roomId)
         })
         socket.on('GameStartReq', () => {
-            startGame(socket)
+            socketLogger.log(`Got GameStartReq from ${socket.id}`)
+            startGame(socket, io)
         });
         socket.on('GameAnswer', (e) => {
-            handleAnswer(socket, e)
+            handleAnswer(socket, e, io)
         });
         socket.on('getGameState', () => {
             socket.emit('gameState', getGameBySocket(socket).gameState)

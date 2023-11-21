@@ -1,13 +1,11 @@
+import 'dotenv/config'
+import { createSerialPort, createSerialServer } from './client/serial';
+import {config} from './utils/utils'
+import { createExpressServer } from './server/server';
 import { createSocketServer } from './server/socket';
-import { httpServer } from './server/server'
-import { config } from './utils/utils';
-import Logger from './utils/logger'
 
-//Loggers
-export const expressLogger = new Logger('express')
-export const socketLogger = new Logger('socketio')
-
+if (process.env.SERIALPORT) {
+  createSerialServer(createSerialPort(process.env.SERIALPORT))
+}
+const httpServer = createExpressServer(config.port)
 export const io = createSocketServer(httpServer);
-httpServer.listen(config.port, () => {
-    expressLogger.log(`API server listening on http://127.0.0.1:${config.port}`);
-  });

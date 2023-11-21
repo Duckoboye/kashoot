@@ -1,16 +1,14 @@
 {
-  "name": "kashoot_backend",
+  "name": "kashoot",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "dist/index.js",
   "scripts": {
-    "install-both": "npm install && npm install --prefix client",
-    "start": "concurrently 'npm run server' 'npm run client'",
+    "start": "npm run server",
     "server": "nodemon dist/index.js",
-    "dev-server": "concurrently 'npx tsc --watch' 'npm run server'",
-    "client": "npm start --prefix client",
-    "dev": "concurrently 'npx tsc --watch' 'npm run server' 'npm run client'",
-    "test": "npx mocha -r ts-node/register test/*.test.ts"
+    "dev": "concurrently \"npx tsc --watch\" \"npm run server\"",
+    "test": "npx mocha -r ts-node/register test/*.test.ts",
+    "test-serial": "npx mocha -r ts-node/register test/serial.test.ts"
   },
   "repository": {
     "type": "git",
@@ -27,6 +25,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "serialport": "^12.0.0",
     "socket.io": "^4.6.1"
   },
   "devDependencies": {
