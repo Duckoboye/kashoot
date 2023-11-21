@@ -129,8 +129,7 @@ function endGame(socket: Socket, io: Server) {
         socketLogger.log(`winner: ${winner}`)
         const winnerSocket = getSocketById(winner, io)
         if (!winnerSocket) return
-        broadcastToUsersRoom(winnerSocket, io, 'GameWin', `${winner} won!`)
-        winnerSocket?.emit('GameWin')
+        broadcastToUsersRoom(winnerSocket, io, 'GameWin', winner)
     }
     /* pscode
     change gamestate to finished

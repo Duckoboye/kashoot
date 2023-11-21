@@ -48,6 +48,16 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
     sendToSerial('placeholder-correct')
   }
 
+  function handleWinner(winner: string) {
+    if (winner === socket.id) {
+      socketClientLogger.log('you won!')
+      sendToSerial('placeholder-you-won')
+    }
+    else {
+      sendToSerial('placeholder-you-lost')
+    }
+  }
+
   socket.on('connect', handleConnect);
   socket.on('error', handleError);
   socket.on('disconnect', handleDisconnect);
@@ -55,6 +65,7 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
   socket.on('GameQuestion', handleGameQuestion);
   socket.on('questionIncorrect', handleQuestionIncorrect);
   socket.on('questionCorrect', handleQuestionCorrect);
+  socket.on('GameWin', handleWinner)
 
   return socket;
 }
