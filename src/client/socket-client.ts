@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { Socket } from 'socket.io-client';
 import { SerialPort, SerialPortMock } from 'serialport';
 import Logger from '../utils/logger';
-
+import { Events } from '../server/socket';
 export const socketClientLogger = new Logger('socketio-client')
 
 export function createSocketClient(url: string, serialPort: SerialPort | SerialPortMock): Socket {
@@ -13,7 +13,7 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
   }
   function handleConnect() {
     socketClientLogger.log('Connected to the server on ' + url);
-    socket.emit('joinGame', 'bla123');
+    socket.emit(Events.joinGame, 'bla123');
   }
 
   function handleError(error: any) {
@@ -61,11 +61,11 @@ export function createSocketClient(url: string, serialPort: SerialPort | SerialP
   socket.on('connect', handleConnect);
   socket.on('error', handleError);
   socket.on('disconnect', handleDisconnect);
-  socket.on('GameState', handleGameState);
-  socket.on('GameQuestion', handleGameQuestion);
-  socket.on('questionIncorrect', handleQuestionIncorrect);
-  socket.on('questionCorrect', handleQuestionCorrect);
-  socket.on('GameWin', handleWinner)
+  socket.on(Events.gameState, handleGameState);
+  socket.on(Events.gameQuestion, handleGameQuestion);
+  socket.on(Events.questionIncorrect, handleQuestionIncorrect);
+  socket.on(Events.questionCorrect, handleQuestionCorrect);
+  socket.on(Events.gameWin, handleWinner)
 
   return socket;
 }
