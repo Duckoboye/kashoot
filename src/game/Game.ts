@@ -19,7 +19,7 @@ enum GameStates {
     Finished = 'finished',
 }
 
-class Game {
+export default class Game {
     roomId: string;
     #gameState: GameStates;
     currentRound: number;
@@ -27,8 +27,7 @@ class Game {
     results: Record<number, RoundResults>;
     answers: Set<Answer>;
 
-    constructor(roomId: string, questions: Question[]) {
-        this.roomId = roomId;
+    constructor(questions: Question[]) {
         this.#gameState = GameStates.Stopped;
         this.currentRound = 0;
         this.questions = questions;
