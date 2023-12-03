@@ -3,8 +3,8 @@ import Logger from '../utils/logger';
 import { Events } from '../server/socket';
 
 class KashootClient {
-  protected socket: Socket;
-  protected logger: Logger;
+  socket: Socket;
+  logger: Logger;
 
   constructor(private url: string, private label: string) {
     this.socket = io(url);
@@ -19,7 +19,14 @@ class KashootClient {
     this.socket.on(Events.questionCorrect, () => this.handleQuestionCorrect());
     this.socket.on(Events.gameWin, (winner) => this.handleWinner(winner));
   }
-
+  emit(event: string, data?: string) {
+    this.logger.log(event+data)
+    if (data) this.socket.emit(event, data)
+    else this.socket.emit(event)
+  }
+  close() {
+    this.socket.close()
+  }
   handleConnect() {
     this.logger.log('Connected to the server on ' + this.url);
     this.socket.emit(Events.joinGame, 'bla123');
