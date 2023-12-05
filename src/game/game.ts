@@ -1,5 +1,5 @@
 import { type Server, Socket } from 'socket.io';
-import { socketLogger } from '../server/socket';
+import { socketLogger } from '../server/socketio';
 
 const activeGames: Record<string, Game> = {}
 

@@ -1,6 +1,6 @@
 import { type Socket, io } from 'socket.io-client';
 import Logger from '../utils/logger';
-import { Events } from '../server/socket';
+import { Events } from '../server/socketio';
 
 class KashootClient {
   socket: Socket;
@@ -18,11 +18,6 @@ class KashootClient {
     this.socket.on(Events.questionIncorrect, () => this.handleQuestionIncorrect());
     this.socket.on(Events.questionCorrect, () => this.handleQuestionCorrect());
     this.socket.on(Events.gameWin, (winner) => this.handleWinner(winner));
-  }
-  emit(event: string, data?: string) {
-    this.logger.log(event+data)
-    if (data) this.socket.emit(event, data)
-    else this.socket.emit(event)
   }
   connect() {
     this.socket.connect()
@@ -65,9 +60,6 @@ class KashootClient {
     if (winner === this.socket.id) {
       this.logger.log('you won!')
     }
-  }
-  public sendMessage(message: string): void {
-    this.socket.emit('message', message);
   }
 
   public disconnect(): void {
