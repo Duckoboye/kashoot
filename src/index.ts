@@ -1,11 +1,11 @@
 import 'dotenv/config'
-import { createSerialPort, createSerialServer } from './client/serial';
-import {config} from './utils/utils'
-import { createExpressServer } from './server/server';
-import { createSocketServer } from './server/socket';
+import { config } from './utils/utils'
+import { createExpressServer } from './server/express';
+import { createSocketServer } from './server/socketio';
+import KashootSocketBridge from './client/KashooterSocketBridge';
 
-if (process.env.SERIALPORT) {
-  createSerialServer(createSerialPort(process.env.SERIALPORT))
-}
 const httpServer = createExpressServer(config.port)
 export const io = createSocketServer(httpServer);
+
+const socket = KashootSocketBridge(8000, `http://localhost:${config.port}`);
+socket.startServer()

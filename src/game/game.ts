@@ -1,5 +1,5 @@
 import { type Server, Socket } from 'socket.io';
-import { socketLogger } from '../server/socket';
+import { socketLogger } from '../server/socketio';
 
 const activeGames: Record<string, Game> = {}
 
@@ -11,7 +11,7 @@ interface Question {
 }
 interface Answer {
     userId: string;
-    answer: string;
+    answer: number;
     roundId: number;
 }
 interface RoundResults {
@@ -35,13 +35,8 @@ enum GameState {
     Running = 'running',
     Finished = 'finished',
 }
-const AnswerMap = new Map<string, number>([
-    ['Blue', 0],
-    ['Red', 1],
-    ['Yellow', 2],
-    ['Green', 3],
-]);
-function handleAnswer(socket: Socket, data: string, io: Server) {
+
+function handleAnswer(socket: Socket, data: number, io: Server) {
     const game = getGameBySocket(socket);
     if (game.gameState !== GameState.Running) {
         return socketLogger.warn(`${socket.id} tried to send answer before game started`);
@@ -56,7 +51,7 @@ function handleAnswer(socket: Socket, data: string, io: Server) {
     game.answers.forEach((ans) => {
         if (ans.roundId !== game.currentRound) return;
 
-        const answerCorrect = AnswerMap.get(ans.answer) === correctAnswer;
+        const answerCorrect = ans.answer === correctAnswer;
         socketLogger.debug(`answer is... ${answerCorrect}`);
 
         const socket = getSocketById(ans.userId, io);
@@ -188,7 +183,7 @@ function calculateScores(game: Game): Record<string, number> {
         const { roundId, userId, answer: userAnswer } = answer;
         const question = questions.find((q) => q.id === roundId);
 
-        if (question && AnswerMap.get(userAnswer) === question.correctAnswer) {
+        if (question && userAnswer === question.correctAnswer) {
             userScores[userId] = (userScores[userId] || 0) + 1;
         }
     });
