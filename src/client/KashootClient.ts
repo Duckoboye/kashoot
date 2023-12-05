@@ -7,7 +7,7 @@ class KashootClient {
   logger: Logger;
 
   constructor(private url: string, private label: string) {
-    this.socket = io(url);
+    this.socket = io(url, {autoConnect: false});
     this.logger = new Logger(this.label)
 
     this.socket.on('connect', () => this.handleConnect());
@@ -23,6 +23,9 @@ class KashootClient {
     this.logger.log(event+data)
     if (data) this.socket.emit(event, data)
     else this.socket.emit(event)
+  }
+  connect() {
+    this.socket.connect()
   }
   close() {
     this.socket.close()
@@ -69,6 +72,12 @@ class KashootClient {
 
   public disconnect(): void {
     this.socket.disconnect();
+  }
+  public answerQuestion(answer: 0|1|2|3): void {
+    this.socket.emit(Events.gameAnswer, answer)
+  }
+  public sendGameStartReq(): void {
+    this.socket.emit(Events.reqGameStart)
   }
 }
 
