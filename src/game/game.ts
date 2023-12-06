@@ -1,40 +1,51 @@
 import { type Server, Socket } from 'socket.io';
 import { socketLogger } from '../server/socketio';
 
-const activeGames: Record<string, Game> = {}
-
+interface Client {
+    username: string,
+    ready: boolean,
+    answers: Map<number, answerId> //questionId, answerId.
+}
 interface Question {
     question: string;
-    answers: string[];
-    correctAnswer: number;
-    id: number;
+    alternatives: string[];
+    correctAnswerId: number;
 }
-interface Answer {
-    userId: string;
-    answer: number;
-    roundId: number;
+interface answerId {
+    answerId: 0|1|2|3
 }
-interface RoundResults {
-    answer: string;
-}
-interface GameResults {
-    // Placeholder
-}
-interface Game {
-    roomId: string;
-    gameState: 'stopped' | 'starting' | 'running' | 'finished';
+export class KashootLobby {
     currentRound: number;
-    questions: Question[];
-    results: Record<number, RoundResults>;
-    clients: Set<string>;
-    answers: Set<Answer>;
+    questions: [Question];
+    clients: Map<string, Client>;  //key is socket instance's id.
+
+    constructor(questions: [Question]) {
+        this.currentRound = 0;
+        this.questions = questions;
+        this.clients = new Map();
+    }
+    private joinGame(userId: string, username: string): void {
+        //adds the client to the game's client list. Warning: silently overwrites if uuid is already used.
+        const client: Client = {
+            username: username,
+            ready: false,
+            answers: new Map()
+        }
+        this.clients.set(userId, client)
+    }
+    private setReadyState(userId: string, ready: boolean) {
+        const user = this.clients.get(userId)
+        if (!user) return //return early if user does not exist. Shouldn't technically be needed since validation should be done before this step but oh well.
+        user.ready = ready
+    }
+    private registerAnswer(userId: string, answerId: answerId): void {
+        //finds the client by its userid and then adds it to the clients answers map.
+        this.clients.get(userId)?.answers.set(this.currentRound, answerId)
+    }
+
 }
-enum GameState {
-    Stopped = 'stopped',
-    Starting = 'starting',
-    Running = 'running',
-    Finished = 'finished',
-}
+
+
 
 function handleAnswer(socket: Socket, data: number, io: Server) {
     const game = getGameBySocket(socket);
