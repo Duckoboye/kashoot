@@ -7,6 +7,7 @@ import Logger from '../utils/logger';
 export enum Events {
     connection = 'connection',
     disconnect = 'disconnect',
+    disconnecting = 'disconnecting',
     joinGame = 'joinGame',
     reqGameStart = 'gameStartReq',
     gameAnswer = 'gameAnswer',
@@ -29,20 +30,21 @@ export function createSocketServer(httpServer: HttpServer) {
 
     io.on(Events.connection, (socket: Socket) => {
         handleConnection(socket)
-
-        socket.on(Events.disconnect, () => {
-            const { room } = socket.data
-            //If socket is in a room, remove it from it.
-            if (room) {
-                lobbies.get(room)?.leaveGame(socket.id)
+        socket.on(Events.disconnecting, () => {
+        //If socket is in a room, remove it from it.
+            for (const room in socket.rooms.values) {
+                if (room !== socket.id) {
+                    lobbies.get(room)?.leaveGame(socket.id)
+                  }
             }
+        })
+        socket.on(Events.disconnect, () => {
+            
         });
         socket.on(Events.joinGame, (data) => {
             //Takes username and roomId as input.
             //TODO: add validation to make sure these are correct.
             const { username, roomCode } = data
-            socket.data.room = roomCode //Used to associate socket to a room so they can be removed from a game if they leave prematurely.
-            //Also intentionally limits socket to one room at a time. I don't see a scenario where a socket needs multiple rooms, so this seems like an easy solution.
 
             const lobby = lobbies.get(roomCode)
 
@@ -59,12 +61,14 @@ export function createSocketServer(httpServer: HttpServer) {
             startGame(socket, io)
         });
         socket.on(Events.gameAnswer, (answer: string) => {
-            const lobby = lobbies.get(socket.data.room)
-            if (!lobby) return //TODO: Add an error here
             const answerNum = Number(answer)
             if (answerNum >= 0 && answerNum <= 3) {
                 const answerId: AnswerId = answerNum as AnswerId;
-            lobby.registerAnswer(socket.id,answerId)
+                for (const room in socket.rooms.values) {
+                    if (room !== socket.id) {
+                        lobbies.get(room)?.registerAnswer(socket.id,answerId) //This implementation is slightly flawed, since if hypothetically a socket is connected to multiple rooms, this will send answers to all rooms at once. 
+                      }
+                }
             }
             
         });
