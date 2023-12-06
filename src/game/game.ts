@@ -6,7 +6,7 @@ interface Client {
     ready: boolean,
     answers: Map<number, answerId> //questionId, answerId.
 }
-interface Question {
+export interface Question {
     question: string;
     alternatives: string[];
     correctAnswerId: number;
@@ -16,15 +16,15 @@ interface answerId {
 }
 export class KashootLobby {
     currentRound: number;
-    questions: [Question];
+    questions: Question[];
     clients: Map<string, Client>;  //key is socket instance's id.
 
-    constructor(questions: [Question]) {
+    constructor(questions: Question[]) {
         this.currentRound = 0;
         this.questions = questions;
         this.clients = new Map();
     }
-    private joinGame(userId: string, username: string): void {
+    public joinGame(userId: string, username: string): void {
         //adds the client to the game's client list. Warning: silently overwrites if uuid is already used.
         const client: Client = {
             username: username,
@@ -33,12 +33,15 @@ export class KashootLobby {
         }
         this.clients.set(userId, client)
     }
-    private setReadyState(userId: string, ready: boolean) {
+    public leaveGame(userId: string): void {
+        this.clients.delete(userId)
+    }
+    public setReadyState(userId: string, ready: boolean) {
         const user = this.clients.get(userId)
         if (!user) return //return early if user does not exist. Shouldn't technically be needed since validation should be done before this step but oh well.
         user.ready = ready
     }
-    private registerAnswer(userId: string, answerId: answerId): void {
+    public registerAnswer(userId: string, answerId: answerId): void {
         //finds the client by its userid and then adds it to the clients answers map.
         this.clients.get(userId)?.answers.set(this.currentRound, answerId)
     }
