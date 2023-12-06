@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
-import { handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, getGameBySocket, KashootLobby, Question, } from '../game/game'
+import { handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, getGameBySocket, KashootLobby, Question, AnswerId, } from '../game/game'
 import Logger from '../utils/logger';
 
 export enum Events {
@@ -28,8 +28,8 @@ export function createSocketServer(httpServer: HttpServer) {
     socketLogger.log('Ready!')
 
     io.on(Events.connection, (socket: Socket) => {
-        
         handleConnection(socket)
+
         socket.on(Events.disconnect, () => {
             const { room } = socket.data
             //If socket is in a room, remove it from it.
@@ -58,11 +58,15 @@ export function createSocketServer(httpServer: HttpServer) {
             socketLogger.log(`Got GameStartReq from ${socket.id}`)
             startGame(socket, io)
         });
-        socket.on(Events.gameAnswer, (data) => {
-            const {roomCode, answerId} = data
-            const lobby = lobbies.get(roomCode)
+        socket.on(Events.gameAnswer, (answer: string) => {
+            const lobby = lobbies.get(socket.data.room)
             if (!lobby) return //TODO: Add an error here
+            const answerNum = Number(answer)
+            if (answerNum >= 0 && answerNum <= 3) {
+                const answerId: AnswerId = answerNum as AnswerId;
             lobby.registerAnswer(socket.id,answerId)
+            }
+            
         });
     })
     return io;

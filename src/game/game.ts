@@ -4,16 +4,14 @@ import { socketLogger } from '../server/socketio';
 interface Client {
     username: string,
     ready: boolean,
-    answers: Map<number, answerId> //questionId, answerId.
+    answers: Map<number, AnswerId> //questionId, answerId.
 }
 export interface Question {
     question: string;
     alternatives: string[];
     correctAnswerId: number;
 }
-interface answerId {
-    answerId: 0|1|2|3
-}
+export type AnswerId = 0 | 1 | 2 | 3;
 export class KashootLobby {
     currentRound: number;
     questions: Question[];
@@ -41,7 +39,7 @@ export class KashootLobby {
         if (!user) return //return early if user does not exist. Shouldn't technically be needed since validation should be done before this step but oh well.
         user.ready = ready
     }
-    public registerAnswer(userId: string, answerId: answerId): void {
+    public registerAnswer(userId: string, answerId: AnswerId): void {
         //finds the client by its userid and then adds it to the clients answers map.
         this.clients.get(userId)?.answers.set(this.currentRound, answerId)
     }
