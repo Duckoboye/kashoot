@@ -11,6 +11,7 @@ export const Events = {
     reqGameStart: 'gameStartReq',
     gameAnswer: 'gameAnswer',
     gameState: 'gameState',
+    readyState: 'readyState',
     getGameState: 'getGameState',
     gameQuestion: 'gameQuestion',
     questionCorrect: 'questionCorrect',
