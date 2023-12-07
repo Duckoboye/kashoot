@@ -33,6 +33,16 @@ export function createSocketServer(httpServer: HttpServer) {
         lobby.GameState = 'running'
             io.to(lobby.roomCode).emit(Events.gameStart, lobby.quizName)
     }
+    function broadcastQuestion(lobby: KashootLobby) {
+        const question = lobby.questions[lobby.currentRound]
+
+        //To make sure we don't send the correct answer id
+        const toSend = {
+            question: question.question,
+            alternatives: question.alternatives
+        }
+        io.to(lobby.roomCode).emit(Events.gameQuestion, toSend)
+    }
 
     io.on(Events.connection, (socket: Socket) => {
         handleConnection(socket)
