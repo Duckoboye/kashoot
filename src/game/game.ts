@@ -12,15 +12,23 @@ export interface Question {
     correctAnswerId: number;
 }
 export type AnswerId = 0 | 1 | 2 | 3;
+type GameState = 'stopped' | 'running' | 'finished'
+
 export class KashootLobby {
     currentRound: number;
+    quizName: string;
     questions: Question[];
     clients: Map<string, Client>;  //key is socket instance's id.
+    gameState: GameState;
+    roomCode: string;
 
-    constructor(questions: Question[]) {
+    constructor(quizName: string, questions: Question[], roomCode: string) {
         this.currentRound = 0;
+        this.roomCode = roomCode;
+        this.quizName = quizName
         this.questions = questions;
         this.clients = new Map();
+        this.gameState = 'stopped'
     }
     public joinGame(userId: string, username: string): void {
         //adds the client to the game's client list. Warning: silently overwrites if uuid is already used.
@@ -43,7 +51,9 @@ export class KashootLobby {
         //finds the client by its userid and then adds it to the clients answers map.
         this.clients.get(userId)?.answers.set(this.currentRound, answerId)
     }
-
+    set GameState(state: GameState) {
+        this.gameState = state
+    }
 }
 
 

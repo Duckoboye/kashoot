@@ -10,6 +10,7 @@ export enum Events {
     disconnecting = 'disconnecting',
     joinGame = 'joinGame',
     reqGameStart = 'gameStartReq',
+    gameStart = 'gameStart',
     gameAnswer = 'gameAnswer',
     gameState = 'gameState',
     getGameState = 'getGameState',
@@ -27,6 +28,11 @@ export function createSocketServer(httpServer: HttpServer) {
 
     const io = new Server(httpServer, config);
     socketLogger.log('Ready!')
+
+    function startGame(lobby: KashootLobby) {
+        lobby.GameState = 'running'
+            io.to(lobby.roomCode).emit(Events.gameStart, lobby.quizName)
+    }
 
     io.on(Events.connection, (socket: Socket) => {
         handleConnection(socket)
@@ -52,30 +58,29 @@ export function createSocketServer(httpServer: HttpServer) {
             if (lobby) {
                 lobby.joinGame(socket.id, username)
             } else {
-                const newLobby = createNewLobby()
+                const newLobby = createNewLobby(roomCode)
                 lobbies.set(roomCode, newLobby)
             }
         })
-        socket.on(Events.reqGameStart, () => {
+        socket.on(Events.reqGameStart, (roomCode) => {
             socketLogger.log(`Got GameStartReq from ${socket.id}`)
-            startGame(socket, io)
+            const lobby = lobbies.get(roomCode)
+            if (!lobby) return //Room doesn't exist, so return early. 
+            startGame(lobby)
         });
-        socket.on(Events.gameAnswer, (answer: string) => {
-            const answerNum = Number(answer)
-            if (answerNum >= 0 && answerNum <= 3) {
-                const answerId: AnswerId = answerNum as AnswerId;
-                for (const room in socket.rooms.values) {
-                    if (room !== socket.id) {
-                        lobbies.get(room)?.registerAnswer(socket.id,answerId) //This implementation is slightly flawed, since if hypothetically a socket is connected to multiple rooms, this will send answers to all rooms at once. 
-                      }
-                }
+        socket.on(Events.gameAnswer, (data: {roomCode: string, answerId: number}) => {
+            //Validates that answerId is valid, then registers it.
+            const {roomCode, answerId} = data
+            const lobby = lobbies.get(roomCode)
+            if (answerId >= 0 && answerId <= 3) {
+                lobby?.registerAnswer(socket.id, answerId as AnswerId)
             }
             
         });
     })
     return io;
 }
-function createNewLobby(): KashootLobby {
+function createNewLobby(roomCode: string): KashootLobby {
     const Questions: Question[] = [
         {
           question: 'What is the capital of France?',
@@ -94,6 +99,6 @@ function createNewLobby(): KashootLobby {
         },
         // Add more questions here
       ];
-    return new KashootLobby(Questions)
+    return new KashootLobby('testGame',Questions, roomCode)
 }
 
