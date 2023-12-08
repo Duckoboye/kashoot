@@ -1,6 +1,3 @@
-import { type Server, Socket } from 'socket.io';
-import { socketLogger } from '../server/socketio';
-
 interface Client {
     username: string,
     ready: boolean,
@@ -62,18 +59,18 @@ export class KashootLobby {
         //Iterates over clients map and checks if any of them hasn't answered yet.
         for (const [, client] of this.clients) {
             if (!client.answers.has(this.currentRound)) {
-              return false; // If any client doesn't have an answer for the current round, return false
+                return false; // If any client doesn't have an answer for the current round, return false
             }
-          }
-          return true; // All clients have answered for the current round
+        }
+        return true; // All clients have answered for the current round
     }
     updateScoreboard() {
         //Iterates over clients to see who answered correctly. If they did, they get an increase in their score. 
         const correctAnswerId: number = this.questions[this.currentRound].correctAnswerId
         for (const [userId, client] of this.clients) {
             if (client.answers.get(this.currentRound) === correctAnswerId) {
-                const score: number | undefined = this.scoreboard.get(userId)
-                if (score) this.scoreboard.set(userId, score+1)
+                const score: number = this.scoreboard.get(userId) || 0
+                this.scoreboard.set(userId, score + 1)
             }
         }
     }
@@ -83,19 +80,19 @@ export class KashootLobby {
         return (answerId === this.questions[this.currentRound].correctAnswerId)
     }
     questionsRemaining(): boolean {
-        return (this.currentRound >= this.questions.length)
+        return !(this.currentRound >= this.questions.length)
     }
     getWinner() {
         let highestScore = -Infinity; // Initialize highest score as lowest possible value
         let userWithHighestScore: string | undefined;
-      
+
         for (const [userId, score] of this.scoreboard.entries()) {
-          if (score > highestScore) {
-            highestScore = score;
-            userWithHighestScore = userId;
-          }
+            if (score > highestScore) {
+                highestScore = score;
+                userWithHighestScore = userId;
+            }
         }
-      
+
         return userWithHighestScore;
-      }
+    }
 }
