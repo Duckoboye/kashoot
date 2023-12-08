@@ -1,22 +1,26 @@
 // JoinForm.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { socket, Events } from '../socket'; // Import the socket object
+import { RoomContext } from './RoomProvider.jsx'
 
 const JoinForm = () => {
+  const { roomCode, setRoomCode } = useContext(RoomContext)
   const [keyInput, setKeyInput] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
 
   const handleJoin = () => {
     // Check if both fields are filled before emitting the event
     if (keyInput && usernameInput) {
-      const eventData = {
-        key: keyInput,
-        username: usernameInput,
-      };
-      socket.emit(Events.joinGame, eventData); // Emit 'joinEvent' with key and username
+      socket.emit(Events.joinGame, usernameInput, keyInput ); // Emit 'joinEvent' with key and username
+      
+      //update roomcode
+      setRoomCode(keyInput)
+
       // Reset the input fields after emitting the event
       setKeyInput('');
       setUsernameInput('');
+      
+      
     } else {
       // Handle case where fields are not filled
       alert('Please fill in both fields');
