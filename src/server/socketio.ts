@@ -42,7 +42,10 @@ export function createSocketServer(httpServer: HttpServer) {
             //If socket is in a room, remove it from it.
             for (const room in socket.rooms.values) {
                 if (room !== socket.id) {
-                    lobbies.get(room)?.leaveGame(socket.id)
+                    const lobby = lobbies.get(room)
+                    if (!lobby) return
+                    lobby.leaveGame(socket.id)
+                    broadcastPlayerList(lobby)
                 }
             }
         })
