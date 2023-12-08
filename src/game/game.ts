@@ -77,4 +77,9 @@ export class KashootLobby {
             }
         }
     }
+    checkAnsweredCorrectly(userId: UserId) {
+        //gets the answer client submitted and checks it to the correct answer
+        const answerId = this.clients.get(userId)?.answers.get(this.currentRound)
+        return (answerId === this.questions[this.currentRound].correctAnswerId)
+    }
 }

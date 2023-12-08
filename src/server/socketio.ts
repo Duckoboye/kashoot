@@ -76,6 +76,8 @@ export function createSocketServer(httpServer: HttpServer) {
             if (lobby.allClientsHaveAnswered()) {
                 //Calculate results. Check if there are any more questions left. If there are, announce the results and then proceed onto next question.
                 //If not, announce winner instead.
+                sendQuestionResults(lobby)
+
                 lobby.updateScoreboard()
                 broadcastScoreboard(lobby)
             }
@@ -120,6 +122,16 @@ export function createSocketServer(httpServer: HttpServer) {
             // Add more questions here
         ];
         return new KashootLobby('testGame', Questions, roomCode)
+    }
+    async function sendQuestionResults(lobby: KashootLobby): Promise<void> {
+        //gets all sockets in the lobby room and iterates over them to send them their results. Events.questionCorrect if correct, Events.questionincorrect if not.
+        const room = io.to(lobby.roomCode)
+        const sockets = await room.fetchSockets()
+
+        for (const socket of sockets) {
+            const result = lobby.checkAnsweredCorrectly(socket.id)
+            socket.emit(result?Events.questionCorrect:Events.questionIncorrect)
+        }
     }
     return io;
 }
