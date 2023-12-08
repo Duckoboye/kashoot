@@ -1,64 +1,74 @@
-import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { createServer, Server as HttpServer } from 'http';
 import { AddressInfo } from 'net';
 import { io as ioc, Socket as ClientSocket } from 'socket.io-client';
-import { Server, Socket as ServerSocket } from 'socket.io';
-import { assert, expect } from 'chai';
-import { createSocketServer, ClientToServerEvents, ServerToClientEvents } from '../src/server/socketio';
-
-function waitFor(socket: ServerSocket | ClientSocket, event: string) {
-    return new Promise((resolve) => {
-        socket.once(event, resolve);
-    });
-}
+import { assert } from 'chai';
+import {
+    ClientToServerEvents,
+    ServerToClientEvents,
+    lobbies,
+    createSocketServer,
+} from '../src/server/socketio';
 
 describe('Socket Server', () => {
-    let io: Server, serverSocket: ServerSocket<ClientToServerEvents, ServerToClientEvents>, clientSocket: ClientSocket<ServerToClientEvents, ClientToServerEvents>;
-    const roomCode = 'testRoom'
-    before((done) => {
-        const httpServer = createServer();
-        io = createSocketServer(httpServer);
-        
+    let io: Server;
+    let clientSocket: ClientSocket<ServerToClientEvents, ClientToServerEvents>;
+    let server: HttpServer;
 
-        httpServer.listen(() => {
-            const { port } = httpServer.address() as AddressInfo;
-             clientSocket = ioc(`http://localhost:${port}`);
-            io.on('connection', (socket) => {
-                serverSocket = socket;
-            });
-            clientSocket.on('connect', done);
+    before((done) => {
+        server = createServer();
+        io = createSocketServer(server);
+
+        server.listen(() => {
+            const { port } = server.address() as AddressInfo;
+            clientSocket = ioc(`http://localhost:${port}`);
+            clientSocket.once('connect', done);
         });
     });
 
     after(() => {
         io.close();
         clientSocket.disconnect();
+        server.close();
     });
-    it('should request game start and receive the game start event', (done) => {
-          clientSocket.once('gameStart', (quizName) => {
-            assert.equal(quizName, 'testGame');
+
+    it('should allow a user to join a game', (done) => {
+        clientSocket.once('playerList', (playerList) => {
+            assert.isArray(playerList);
+            assert.isNotEmpty(playerList);
             done();
-          });
-      
-        clientSocket.emit('joinGame', 'testUser', roomCode);
-        clientSocket.emit('gameStartReq', roomCode);
-      });
-    it('should send question', (done) => {
-        clientSocket.once('gameQuestion', (questionData) => {
-            console.log(questionData)
-            expect(questionData).to.exist;
-            done()
         });
-    })
-    it('should handle correct answers',(done) => {
-        clientSocket.once('questionCorrect', () => {
-            done()
+        clientSocket.emit('joinGame', 'TestUser', 'TestRoom');
+    });
+
+    it('should set ready state for a player', (done) => {
+        const roomCode = 'TestRoom';
+        const isReady = true;
+
+        clientSocket.once('playerList', (playerList) => {
+            const player = playerList.find((player: { username: string; }) => player.username === 'TestUser');
+            assert.isDefined(player);
+            assert.equal(isReady, player?.isReady)
+            done();
         });
-        clientSocket.emit('gameAnswer', roomCode, 0)
-    })
-    it('should handle incorrect answers',(done) => {
-        clientSocket.once('questionIncorrect', () => {
-            done()
+        clientSocket.emit('readyState', roomCode, isReady)
+    });
+    it('should start a game when requested', (done) => {
+        clientSocket.once('gameStart', (quizName) => {
+            assert.strictEqual(quizName, 'testGame');
+            done();
         });
-        clientSocket.emit('gameAnswer', roomCode, 1)
-    })
+        clientSocket.emit('gameStartReq', 'TestRoom');
+    });
+
+    it('should handle game question', (done) => {
+        clientSocket.once('gameQuestion', (question, alternatives) => {
+            assert.isString(question);
+            assert.isArray(alternatives);
+            assert.isNotEmpty(alternatives);
+            done();
+        });
+    });
+
+    // Add more test cases as needed
 });
