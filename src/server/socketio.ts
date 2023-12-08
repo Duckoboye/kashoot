@@ -14,6 +14,7 @@ export interface ServerToClientEvents {
     gameState: (gameState: string) => void
     playerList: (playerList: {
         username: string;
+        isReady: boolean;
     }[]) => void
 }
 export interface ClientToServerEvents {
@@ -27,9 +28,9 @@ interface InterServerEvents { } //for some reason it doesn't work without this??
 
 export const socketLogger = new Logger('socketio-server')
 
+export const lobbies = new Map<string, KashootLobby>() //Uses lobby code as key, game as value. 
+
 export function createSocketServer(httpServer: HttpServer) {
-    //TODO: Move this somewhere more suitable later pls.
-    const lobbies = new Map<string, KashootLobby>() //Uses lobby code as key, game as value. 
 
     const io = new Server<
         ClientToServerEvents,
@@ -77,6 +78,7 @@ export function createSocketServer(httpServer: HttpServer) {
             if (!room) return
             const client = room.clients.get(socket.id)
             if (client) client.ready = isReady
+            broadcastPlayerList(room)
         })
         socket.on('gameAnswer', (roomCode: string, answerId: number) => {
             //Validates that answerId is valid, then registers it.
@@ -107,7 +109,8 @@ export function createSocketServer(httpServer: HttpServer) {
     })
     function broadcastPlayerList(lobby: KashootLobby) {
         const playerList = Array.from(lobby.clients.values()).map(client => ({
-            username: client.username
+            username: client.username,
+            isReady: client.ready
         }));
         io.to(lobby.roomCode).emit('playerList', playerList);
     }
