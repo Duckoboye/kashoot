@@ -47,7 +47,7 @@ export function createSocketServer(httpServer: HttpServer) {
             //Takes username and roomId as input.
             //TODO: add validation to make sure these are correct.
             const { username, roomCode } = data
-
+            socket.join(roomCode)
             const lobby = lobbies.get(roomCode)
 
             //If lobby exists, add the user to it. If not, create a new room for it.
@@ -59,9 +59,9 @@ export function createSocketServer(httpServer: HttpServer) {
             }
         })
         socket.on(Events.reqGameStart, (roomCode) => {
-            socketLogger.log(`Got GameStartReq from ${socket.id}`)
+            socketLogger.log(`Got GameStartReq from ${socket.id} for roomCode ${roomCode}`)
             const lobby = lobbies.get(roomCode)
-            if (!lobby) return //Room doesn't exist, so return early. 
+            if (!lobby) return //Room doesn't exist, so return early.
             startGame(lobby)
         });
         socket.on(Events.gameAnswer, (data: { roomCode: string, answerId: number }) => {
