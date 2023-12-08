@@ -20,6 +20,7 @@ export interface ClientToServerEvents {
     joinGame: (username: string, roomCode: string) => void
     disconnecting: () => void
     gameStartReq: (roomCode: string) => void
+    readyState: (roomCode: string, isReady: boolean) => void
     gameAnswer: (roomCode: string, answerId: number) => void
 }
 interface InterServerEvents { } //for some reason it doesn't work without this??
@@ -70,6 +71,13 @@ export function createSocketServer(httpServer: HttpServer) {
             if (!lobby) return //Room doesn't exist, so return early.
             startGame(lobby)
         });
+        socket.on('readyState', (roomCode, isReady) => {
+            //sets the readyState of the socket's client.
+            const room = lobbies.get(roomCode)
+            if (!room) return
+            const client = room.clients.get(socket.id)
+            if (client) client.ready = isReady
+        })
         socket.on('gameAnswer', (roomCode: string, answerId: number) => {
             //Validates that answerId is valid, then registers it.
             const lobby = lobbies.get(roomCode)
