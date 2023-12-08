@@ -1,59 +1,79 @@
-import {
-    expect
-} from 'chai';
-import {
-    type Server
-} from 'socket.io'
-import {
-    io as ioc,
-    type Socket as ClientSocket
-} from "socket.io-client";
-import {
-    io as ios
-} from '../src/index'
-import {
-    config
-} from '../src/utils/utils'
+import { createServer } from 'http';
+import { AddressInfo } from 'net';
+import { io as ioc, Socket as ClientSocket } from 'socket.io-client';
+import { Server, Socket as ServerSocket } from 'socket.io';
+import { assert, expect } from 'chai';
+import { Events, createSocketServer } from '../src/server/socketio';
 
-describe('Socket.io Game Tests', () => {
-    let io: Server = ios;
-    let clientSocket: ClientSocket;
-    let roomId: string;
+function waitFor(socket: ServerSocket | ClientSocket, event: string) {
+    return new Promise((resolve) => {
+        socket.once(event, resolve);
+    });
+}
 
+describe('Socket Server', () => {
+    let io: Server, serverSocket: ServerSocket, clientSocket: ClientSocket;
+    const roomCode = 'testRoom'
     before((done) => {
+        const httpServer = createServer();
+        io = createSocketServer(httpServer);
+        
 
-        const port = config.port;
-        clientSocket = ioc(`http://localhost:${port}`);
-        clientSocket.on('connect', done);
+        httpServer.listen(() => {
+            const { port } = httpServer.address() as AddressInfo;
+            clientSocket = ioc(`http://localhost:${port}`);
+            io.on('connection', (socket) => {
+                serverSocket = socket;
+            });
+            clientSocket.on('connect', done);
+        });
     });
 
     after(() => {
-        clientSocket.disconnect();
         io.close();
-    });
-
-    it('should allow a user to join or create a game', (done) => {
-        roomId = 'room123'; // Replace with your room ID logic
-        clientSocket.emit('joinGame', roomId);
-        setTimeout(done, 100);
-    });
-
-    it('should start a game when requested', (done) => {
-        clientSocket.emit('GameStartReq');
-
-        clientSocket.once('GameState', (gameState) => {
-            expect(gameState).to.equal('starting');
-        })
-        setTimeout(() => {
-            clientSocket.once('GameState', (gameState) => {
-                expect(gameState).to.equal('running');
-                done()
-            })
-        }, 10)
-    });
-
-    it('should handle user disconnection', (done) => {
         clientSocket.disconnect();
-        setTimeout(done, 100);
     });
+
+    it('should emit "hello" event from server and receive on client', (done) => {
+        clientSocket.once('hello', (arg) => {
+            assert.equal(arg, 'world');
+            done();
+        });
+        serverSocket.emit('hello', 'world');
+    });
+
+    it('should use waitFor() to ensure event emission', async () => {
+        const waitForEvent = waitFor(clientSocket, 'baz');
+        serverSocket.emit('baz');
+        return await waitForEvent;
+    });
+
+    it('should request game start and receive the game start event', (done) => {
+          clientSocket.once('gameStart', (quizName) => {
+            assert.equal(quizName, 'testGame');
+            done();
+          });
+      
+        clientSocket.emit('joinGame', { username: 'testUser', roomCode: roomCode });
+        clientSocket.emit(Events.reqGameStart, roomCode);
+      });
+    it('should send question', (done) => {
+        clientSocket.once(Events.gameQuestion, (questionData) => {
+            console.log(questionData)
+            expect(questionData).to.exist;
+            done()
+        });
+    })
+    it('should handle correct answers',(done) => {
+        clientSocket.once(Events.questionCorrect, () => {
+            done()
+        });
+        clientSocket.emit(Events.gameAnswer, {roomCode: roomCode, answerId: 0})
+    })
+    it('should handle incorrect answers',(done) => {
+        clientSocket.once(Events.questionIncorrect, () => {
+            done()
+        });
+        clientSocket.emit(Events.gameAnswer, {roomCode: roomCode, answerId: 1})
+    })
 });
