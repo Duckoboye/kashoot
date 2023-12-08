@@ -56,6 +56,7 @@ export function createSocketServer(httpServer: HttpServer) {
             } else {
                 const newLobby = createNewLobby(roomCode)
                 lobbies.set(roomCode, newLobby)
+                newLobby.joinGame(socket.id, username)
             }
         })
         socket.on(Events.reqGameStart, (roomCode) => {
@@ -78,15 +79,16 @@ export function createSocketServer(httpServer: HttpServer) {
                 //If not, announce winner instead.
                 sendQuestionResults(lobby)
                 lobby.updateScoreboard()
-
-                if (lobby.questionsRemaining()) {
-                    lobby.currentRound++
-                    broadcastScoreboard(lobby)
-                    //add a wait here...
-                    broadcastQuestion(lobby)
-                } else {
-                    io.to(lobby.roomCode).emit(Events.gameWin, lobby.getWinner())
-                }
+                setTimeout(() => {
+                    if (lobby.questionsRemaining()) {
+                        lobby.currentRound++
+                        broadcastScoreboard(lobby)
+                        setTimeout(() => broadcastQuestion(lobby), 1000);
+                    } else {
+                        io.to(lobby.roomCode).emit(Events.gameWin, lobby.getWinner())
+                    }
+                }, 1000);
+                
             }
 
         });
@@ -98,6 +100,7 @@ export function createSocketServer(httpServer: HttpServer) {
     function startGame(lobby: KashootLobby) {
         lobby.GameState = 'running'
         io.to(lobby.roomCode).emit(Events.gameStart, lobby.quizName)
+        setTimeout(() => broadcastQuestion(lobby),1000)
     }
     function broadcastQuestion(lobby: KashootLobby) {
         const question = lobby.questions[lobby.currentRound]
