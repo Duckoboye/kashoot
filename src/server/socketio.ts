@@ -1,25 +1,25 @@
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
 import { KashootLobby, Question, AnswerId, } from '../game/game'
 import Logger from '../utils/logger';
 
-export enum Events {
-    connection = 'connection',
-    disconnect = 'disconnect',
-    disconnecting = 'disconnecting',
-    joinGame = 'joinGame',
-    reqGameStart = 'gameStartReq',
-    gameStart = 'gameStart',
-    gameAnswer = 'gameAnswer',
-    gameState = 'gameState',
-    getGameState = 'getGameState',
-    gameQuestion = 'gameQuestion',
-    questionCorrect = 'questionCorrect',
-    questionIncorrect = 'questionIncorrect',
-    gameWin = 'gameWin',
-    scoreboard = 'scoreboard'
+export interface ServerToClientEvents {
+    gameStart: (quizName: string) => void
+    scoreboard: (scoreboard: Map<string, number>) => void
+    gameWin: (winner: string | undefined) => void
+    gameQuestion: (question: string, alternatives: string[]) => void
+    questionCorrect: () => void
+    questionIncorrect: () => void
+    gameState: (gameState: string) => void
 }
+export interface ClientToServerEvents {
+    joinGame: (username: string, roomCode: string) => void
+    disconnecting: () => void
+    gameStartReq: (roomCode: string) => void
+    gameAnswer: (roomCode: string, answerId: number) => void
+}
+interface InterServerEvents { } //for some reason it doesn't work without this??
 
 export const socketLogger = new Logger('socketio-server')
 
@@ -27,12 +27,15 @@ export function createSocketServer(httpServer: HttpServer) {
     //TODO: Move this somewhere more suitable later pls.
     const lobbies = new Map<string, KashootLobby>() //Uses lobby code as key, game as value. 
 
-    const io = new Server(httpServer, config);
+    const io = new Server<
+        ClientToServerEvents,
+        ServerToClientEvents,
+        InterServerEvents
+    >(httpServer, config);
     socketLogger.log('Ready!')
-
-    io.on(Events.connection, (socket: Socket) => {
+    io.on('connection', (socket) => {
         socketLogger.log(`User ${socket.id} connected`);
-        socket.on(Events.disconnecting, () => {
+        socket.on('disconnecting', () => {
             //If socket is in a room, remove it from it.
             for (const room in socket.rooms.values) {
                 if (room !== socket.id) {
@@ -40,13 +43,10 @@ export function createSocketServer(httpServer: HttpServer) {
                 }
             }
         })
-        socket.on(Events.disconnect, () => {
-
-        });
-        socket.on(Events.joinGame, (data) => {
+        socket.on('joinGame', (username, roomCode) => {
             //Takes username and roomId as input.
             //TODO: add validation to make sure these are correct.
-            const { username, roomCode } = data
+
             socket.join(roomCode)
             const lobby = lobbies.get(roomCode)
 
@@ -59,15 +59,14 @@ export function createSocketServer(httpServer: HttpServer) {
                 newLobby.joinGame(socket.id, username)
             }
         })
-        socket.on(Events.reqGameStart, (roomCode) => {
+        socket.on('gameStartReq', (roomCode) => {
             socketLogger.log(`Got GameStartReq from ${socket.id} for roomCode ${roomCode}`)
             const lobby = lobbies.get(roomCode)
             if (!lobby) return //Room doesn't exist, so return early.
             startGame(lobby)
         });
-        socket.on(Events.gameAnswer, (data: { roomCode: string, answerId: number }) => {
+        socket.on('gameAnswer', (roomCode: string, answerId: number) => {
             //Validates that answerId is valid, then registers it.
-            const { roomCode, answerId } = data
             const lobby = lobbies.get(roomCode)
             if (!lobby) return
             if (answerId >= 0 && answerId <= 3) {
@@ -85,32 +84,27 @@ export function createSocketServer(httpServer: HttpServer) {
                         broadcastScoreboard(lobby)
                         setTimeout(() => broadcastQuestion(lobby), 1000);
                     } else {
-                        io.to(lobby.roomCode).emit(Events.gameWin, lobby.getWinner())
+                        io.to(lobby.roomCode).emit('gameWin', lobby.getWinner())
                     }
                 }, 1000);
-                
+
             }
 
         });
     })
     function broadcastScoreboard(lobby: KashootLobby) {
         //Get scoreboard, then broadcast it to room.
-        io.to(lobby.roomCode).emit(Events.scoreboard, lobby.scoreboard)
+        io.to(lobby.roomCode).emit('scoreboard', lobby.scoreboard)
     }
     function startGame(lobby: KashootLobby) {
         lobby.GameState = 'running'
-        io.to(lobby.roomCode).emit(Events.gameStart, lobby.quizName)
-        setTimeout(() => broadcastQuestion(lobby),1000)
+        io.to(lobby.roomCode).emit('gameStart', lobby.quizName)
+        setTimeout(() => broadcastQuestion(lobby), 1000)
     }
     function broadcastQuestion(lobby: KashootLobby) {
         const question = lobby.questions[lobby.currentRound]
 
-        //To make sure we don't send the correct answer id
-        const toSend = {
-            question: question.question,
-            alternatives: question.alternatives
-        }
-        io.to(lobby.roomCode).emit(Events.gameQuestion, toSend)
+        io.to(lobby.roomCode).emit('gameQuestion', question.question, question.alternatives)
     }
     function createNewLobby(roomCode: string): KashootLobby {
         const Questions: Question[] = [
@@ -140,7 +134,7 @@ export function createSocketServer(httpServer: HttpServer) {
 
         for (const socket of sockets) {
             const result = lobby.checkAnsweredCorrectly(socket.id)
-            socket.emit(result?Events.questionCorrect:Events.questionIncorrect)
+            socket.emit(result ? 'questionCorrect' : 'questionIncorrect')
         }
     }
     return io;
