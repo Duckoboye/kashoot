@@ -82,4 +82,20 @@ export class KashootLobby {
         const answerId = this.clients.get(userId)?.answers.get(this.currentRound)
         return (answerId === this.questions[this.currentRound].correctAnswerId)
     }
+    questionsRemaining(): boolean {
+        return (this.currentRound >= this.questions.length)
+    }
+    getWinner() {
+        let highestScore = -Infinity; // Initialize highest score as lowest possible value
+        let userWithHighestScore: string | undefined;
+      
+        for (const [userId, score] of this.scoreboard.entries()) {
+          if (score > highestScore) {
+            highestScore = score;
+            userWithHighestScore = userId;
+          }
+        }
+      
+        return userWithHighestScore;
+      }
 }

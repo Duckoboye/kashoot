@@ -77,9 +77,16 @@ export function createSocketServer(httpServer: HttpServer) {
                 //Calculate results. Check if there are any more questions left. If there are, announce the results and then proceed onto next question.
                 //If not, announce winner instead.
                 sendQuestionResults(lobby)
-
                 lobby.updateScoreboard()
-                broadcastScoreboard(lobby)
+
+                if (lobby.questionsRemaining()) {
+                    lobby.currentRound++
+                    broadcastScoreboard(lobby)
+                    //add a wait here...
+                    broadcastQuestion(lobby)
+                } else {
+                    io.to(lobby.roomCode).emit(Events.gameWin, lobby.getWinner())
+                }
             }
 
         });
