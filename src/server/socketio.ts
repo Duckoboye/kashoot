@@ -1,8 +1,9 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
-import { handleConnection, handleAnswer, handleDisconnect, joinOrCreateGame, startGame, getGameBySocket, KashootLobby, Question, AnswerId, } from '../game/game'
+import { KashootLobby, Question, AnswerId, } from '../game/game'
 import Logger from '../utils/logger';
+
 
 export enum Events {
     connection = 'connection',
@@ -17,7 +18,8 @@ export enum Events {
     gameQuestion = 'gameQuestion',
     questionCorrect = 'questionCorrect',
     questionIncorrect = 'questionIncorrect',
-    gameWin = 'gameWin'
+    gameWin = 'gameWin',
+    scoreboard = 'scoreboard'
 }
 
 export const socketLogger = new Logger('socketio-server')
@@ -45,7 +47,7 @@ export function createSocketServer(httpServer: HttpServer) {
     }
 
     io.on(Events.connection, (socket: Socket) => {
-        handleConnection(socket)
+        socketLogger.log(`User ${socket.id} connected`);
         socket.on(Events.disconnecting, () => {
         //If socket is in a room, remove it from it.
             for (const room in socket.rooms.values) {
@@ -82,12 +84,26 @@ export function createSocketServer(httpServer: HttpServer) {
             //Validates that answerId is valid, then registers it.
             const {roomCode, answerId} = data
             const lobby = lobbies.get(roomCode)
+            if (!lobby) return
             if (answerId >= 0 && answerId <= 3) {
-                lobby?.registerAnswer(socket.id, answerId as AnswerId)
+                lobby.registerAnswer(socket.id, answerId as AnswerId)
+            }
+
+            if (lobby.allClientsHaveAnswered()) {
+                //Calculate results. Check if there are any more questions left. If there are, announce the results and then proceed onto next question.
+                //If not, announce winner instead.
+                lobby.updateScoreboard()
+                broadcastScoreboard(lobby)
             }
             
         });
     })
+    function broadcastScoreboard(lobby: KashootLobby) {
+        //Get scoreboard, then broadcast it to room.
+        io.to(lobby.roomCode).emit(Events.scoreboard, lobby.scoreboard)
+    }
+    
+    
     return io;
 }
 function createNewLobby(roomCode: string): KashootLobby {
