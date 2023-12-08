@@ -12,6 +12,9 @@ export interface ServerToClientEvents {
     questionCorrect: () => void
     questionIncorrect: () => void
     gameState: (gameState: string) => void
+    playerList: (playerList: {
+        username: string;
+    }[]) => void
 }
 export interface ClientToServerEvents {
     joinGame: (username: string, roomCode: string) => void
@@ -48,16 +51,15 @@ export function createSocketServer(httpServer: HttpServer) {
             //TODO: add validation to make sure these are correct.
 
             socket.join(roomCode)
-            const lobby = lobbies.get(roomCode)
+            let lobby = lobbies.get(roomCode)
 
-            //If lobby exists, add the user to it. If not, create a new room for it.
-            if (lobby) {
-                lobby.joinGame(socket.id, username)
-            } else {
-                const newLobby = createNewLobby(roomCode)
-                lobbies.set(roomCode, newLobby)
-                newLobby.joinGame(socket.id, username)
+            //If lobby doesn't exist, create a new one.
+            if (!lobby) {
+                lobby = createNewLobby(roomCode)
+                lobbies.set(roomCode, lobby)
             }
+            lobby.joinGame(socket.id, username)
+            broadcastPlayerList(lobby)
         })
         socket.on('gameStartReq', (roomCode) => {
             socketLogger.log(`Got GameStartReq from ${socket.id} for roomCode ${roomCode}`)
@@ -92,6 +94,13 @@ export function createSocketServer(httpServer: HttpServer) {
 
         });
     })
+    function broadcastPlayerList(lobby: KashootLobby) {
+        const playerList = Array.from(lobby.clients.values()).map(client => ({
+            username: client.username
+        }));
+        io.to(lobby.roomCode).emit('playerList', playerList);
+    }
+    
     function broadcastScoreboard(lobby: KashootLobby) {
         //Get scoreboard, then broadcast it to room.
         io.to(lobby.roomCode).emit('scoreboard', lobby.scoreboard)
