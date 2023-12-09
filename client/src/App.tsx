@@ -1,23 +1,23 @@
 import Header from './components/Header'
 import { useEffect, useContext, useState } from 'react'
 import { socket } from './socket'
-import SocketButton from './components/SocketButton'
-import AnswerButtons from './components/AnswerButtons'
 import JoinForm from './components/JoinForm'
-import ReadySwitch from './components/ReadySwitch'
 import { RoomContext } from './components/RoomProvider'
-import PlayersList from './components/PlayersList'
 import { Player, Question } from './socket'
+import PreGameMenu from './components/PreGameMenu'
+import InGameMenu from './components/InGameMenu'
+import Loading from './components/Loading'
+import Winner from './components/Winner'
 
 function App() {
   const { roomCode, } = useContext(RoomContext)
-  const [playerList, setPlayerList] = useState<Player[]>();
-  // const [gameStarted, setGameStarted] = useState(false)
-  const [, setQuizName] = useState('')
-  const [, setGameState] = useState('')
+  const [playerList, setPlayerList] = useState<Player[]>([]);
+  const [, setQuizName] = useState<string>()
+  const [gameState, setGameState] = useState<string>()
   const [question, setQuestion] = useState<Question>();
-  const [questionCorrect, setQuestionCorrect] = useState<boolean>()
-  const [answered, setAnswered] = useState(false)
+  const [questionCorrect, setQuestionCorrect] = useState<boolean | undefined>()
+  const [answered, setAnswered] = useState<boolean>(false)
+  const [winner, setWinner] = useState<string>()
 
   useEffect(() => {
     function onQuestion(question: string, alternatives: string[]) {
@@ -29,6 +29,7 @@ function App() {
     socket.on('gameQuestion', (receivedQuestion: string, receivedAlternatives: string[]) => {
       onQuestion(receivedQuestion, receivedAlternatives);
       setAnswered(false)
+      setQuestionCorrect(undefined)
     });
     socket.on('questionCorrect', () => {
       setQuestionCorrect(true)
@@ -36,37 +37,37 @@ function App() {
     socket.on('questionIncorrect', () => {
       setQuestionCorrect(false)
     })
+    socket.on('gameWin', setWinner)
 
     return () => {
       socket.off('playerList')
       socket.off('gameStart')
       socket.off('gameState')
       socket.off('gameQuestion')
+      socket.off('questionCorrect')
+      socket.off('questionIncorrect')
+      socket.off('gameWin')
+      socket.off('gameState')
     }
   }, [])
-
+  let toRender
+    switch (gameState) {
+      case 'running':
+        toRender = question?<InGameMenu question={question} answered={answered} setAnswered={setAnswered} answeredCorrect={questionCorrect} />:<Loading/>
+        break;
+      case 'finished':
+        toRender = winner?<Winner winner={winner==socket.id?'You!':winner}/>:<Loading/>
+        break;
+      default:
+        toRender = <PreGameMenu playerList={playerList}></PreGameMenu>
+        break;
+  }
+  
   return (
     <>
       <Header></Header>
-      <JoinForm></JoinForm>
-
-      {roomCode && <>
-        <SocketButton eventName={'gameStartReq'} eventData={roomCode}></SocketButton>
-        <ReadySwitch></ReadySwitch>
-        {playerList && <PlayersList players={playerList}></PlayersList>}
-        <hr />
-        <h4>answer is... {answered?'correct :)':'incorrect :('}</h4>
-        {question?.question && <h1>{question.question}</h1>}
-        {!answered &&
-        <>
-        {question?.alternatives && <AnswerButtons alternatives={question.alternatives} setAnswered={setAnswered}></AnswerButtons>}
-        </>
-        }
-        
-
-        <hr />
-      </>}
-
+      {!roomCode ? <JoinForm /> : (
+      toRender)}
     </>
   )
 }
