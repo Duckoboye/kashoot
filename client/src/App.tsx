@@ -13,7 +13,7 @@ function App() {
   const { roomCode, } = useContext(RoomContext)
   const [playerList, setPlayerList] = useState<Player[]>([]);
   const [, setQuizName] = useState<string>()
-  const [gameState, setGameState] = useState<string>()
+  const [gameState, setGameState] = useState<string>('stopped')
   const [question, setQuestion] = useState<Question>();
   const [questionCorrect, setQuestionCorrect] = useState<boolean | undefined>()
   const [answered, setAnswered] = useState<boolean>(false)
@@ -52,6 +52,9 @@ function App() {
   }, [])
   let toRender
     switch (gameState) {
+      case 'stopped':
+      toRender = <PreGameMenu playerList={playerList}></PreGameMenu>
+      break;
       case 'running':
         toRender = question?<InGameMenu question={question} answered={answered} setAnswered={setAnswered} answeredCorrect={questionCorrect} />:<Loading/>
         break;
@@ -59,7 +62,6 @@ function App() {
         toRender = winner?<Winner winner={winner==socket.id?'You!':winner}/>:<Loading/>
         break;
       default:
-        toRender = <PreGameMenu playerList={playerList}></PreGameMenu>
         break;
   }
   

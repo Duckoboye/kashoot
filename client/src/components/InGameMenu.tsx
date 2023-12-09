@@ -15,7 +15,7 @@ const InGameMenu: React.FC<InGameMenuProps> = ({ question, answered, setAnswered
       {answered ? (
         <>
           {/* Display the result */}
-          {answeredCorrect ? <h1>Correct :)</h1> : <h1>Incorrect :(</h1>}
+          {answeredCorrect !== undefined ? <>{answeredCorrect ? <h1>Correct :)</h1> : <h1>Incorrect :(</h1>}</>:<h1>Waiting for other player(s)...</h1>}
         </>
       ) : (
         <>
