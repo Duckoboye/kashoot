@@ -2,7 +2,7 @@
 import React from 'react';
 import { socket } from '../socket';
 
-const GameAnswerButton = ({ colorCode, answerId }) => {
+const GameAnswerButton = ({ colorCode, answerId, text }) => {
   const emitAnswer = () => {
     socket.emit('gameAnswer', answerId); // Always emit 'gameAnswer' event with data
   };
@@ -18,7 +18,7 @@ const GameAnswerButton = ({ colorCode, answerId }) => {
 
   return (
     <button onClick={emitAnswer} style={buttonStyle}>
-      Answer
+      {text}
     </button>
   );
 };
