@@ -1,7 +1,7 @@
 // ToggleSwitch.js
-import React, { useState, useContext } from 'react';
-import { socket, Events } from '../socket'; // Import the socket object
-import { RoomContext } from './RoomProvider.jsx'
+import { useState, useContext } from 'react';
+import { socket } from '../socket.js'; // Import the socket object
+import { RoomContext } from './RoomProvider.js'
 
 const ToggleSwitch = () => {
   const [isChecked, setIsChecked] = useState(false);

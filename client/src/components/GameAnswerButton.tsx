@@ -1,11 +1,15 @@
 // GameAnswerButton.js
-import React from 'react';
-import { socket } from '../socket';
+import React, {  } from 'react';
 
-const GameAnswerButton = ({ colorCode, answerId, text }) => {
-  const emitAnswer = () => {
-    socket.emit('gameAnswer', answerId); // Always emit 'gameAnswer' event with data
-  };
+interface GameAnswerProps {
+  colorCode: string
+  answerId: number //Change to 0|1|2|3 later
+  text: string
+  onClick: () => void
+}
+
+
+const GameAnswerButton: React.FC<GameAnswerProps> = ({ colorCode, text, onClick }) => {
 
   const buttonStyle = {
     backgroundColor: colorCode || 'blue', // Use the provided color or default to 'blue'
@@ -17,7 +21,7 @@ const GameAnswerButton = ({ colorCode, answerId, text }) => {
   };
 
   return (
-    <button onClick={emitAnswer} style={buttonStyle}>
+    <button onClick={() => onClick()} style={buttonStyle}>
       {text}
     </button>
   );
