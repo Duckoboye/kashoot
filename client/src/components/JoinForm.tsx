@@ -1,48 +1,44 @@
-// JoinForm.js
 import { useState, useContext } from 'react';
 import { socket } from '../socket'; // Import the socket object
-import { RoomContext } from './RoomProvider.js'
+import { RoomContext } from './RoomProvider';
+import './JoinForm.css'; // Import the CSS file for styling
+import Header from './Header';
 
 const JoinForm = () => {
-  const { setRoomCode } = useContext(RoomContext)
+  const { setRoomCode } = useContext(RoomContext);
   const [keyInput, setKeyInput] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
 
   const handleJoin = () => {
-    // Check if both fields are filled before emitting the event
     if (keyInput && usernameInput) {
-      socket.emit('joinGame', usernameInput, keyInput ); // Emit 'joinEvent' with key and username
-      
-      //update roomcode
-      setRoomCode(keyInput)
-
-      // Reset the input fields after emitting the event
+      socket.emit('joinGame', usernameInput, keyInput);
+      setRoomCode(keyInput);
       setKeyInput('');
       setUsernameInput('');
-      
-      
     } else {
-      // Handle case where fields are not filled
       alert('Please fill in both fields');
     }
   };
 
-  return (
-    <div>
-      <input
-        type="text"
-        placeholder="Enter 6-character key"
-        value={keyInput}
-        onChange={(e) => setKeyInput(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Enter username"
-        value={usernameInput}
-        onChange={(e) => setUsernameInput(e.target.value)}
-      />
-      <button onClick={handleJoin}>Join</button>
-    </div>
+  return (<div className="alignment-wrapper">
+    
+      <div className="join-form-container">
+        <Header/>
+        <input
+          type="text"
+          placeholder="Enter Room"
+          value={keyInput}
+          onChange={(e) => setKeyInput(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Enter username"
+          value={usernameInput}
+          onChange={(e) => setUsernameInput(e.target.value)}
+        />
+        <button onClick={handleJoin}>Join</button>
+      </div>
+  </div>
   );
 };
 

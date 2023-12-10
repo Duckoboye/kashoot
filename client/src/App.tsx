@@ -67,7 +67,6 @@ function App() {
   
   return (
     <>
-      <Header></Header>
       {!roomCode ? <JoinForm /> : (
       toRender)}
     </>
