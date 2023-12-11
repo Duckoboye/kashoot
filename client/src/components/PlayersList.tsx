@@ -9,9 +9,11 @@ interface PlayersListProps {
 const PlayersList: React.FC<PlayersListProps> = ({ players }) => {
   return (
     <div className="players-list">
-      {players.map((player, index) => (
-        <PlayerCard key={index} username={player.username} isReady={player.isReady} />
-      ))}
+      {
+      players.map((player, index) => (
+        <PlayerCard key={index} username={player.username} isReady={player.isReady} id={player.id} />
+      ))
+      }
     </div>
   );
 };

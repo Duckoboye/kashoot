@@ -3,9 +3,9 @@ import { Player } from '../socket';
 
 const PlayerCard: React.FC<Player> = ({ username, isReady }) => {
   return (
-    <div className="player-card">
-      <h3>{username}</h3>
-      <p>Ready: {isReady ? 'Yes' : 'No'}</p>
+    <div className="player">
+      <div id='username'>{username}</div >
+      <div id='subtext'>{isReady ? 'Ready!' : 'Not ready'}</div>
     </div>
   );
 };
