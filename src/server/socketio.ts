@@ -1,8 +1,9 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
-import { KashootLobby, Question, AnswerId, } from '../game/game'
+import { KashootLobby, Question, AnswerId, GameState, } from '../game/game'
 import Logger from '../utils/logger';
+
 
 export interface ServerToClientEvents {
     gameStart: (quizName: string) => void
@@ -11,10 +12,11 @@ export interface ServerToClientEvents {
     gameQuestion: (question: string, alternatives: string[]) => void
     questionCorrect: () => void
     questionIncorrect: () => void
-    gameState: (gameState: string) => void
+    gameState: (gameState: GameState) => void
     playerList: (playerList: {
         username: string;
         isReady: boolean;
+        id: string;
     }[]) => void
 }
 export interface ClientToServerEvents {
@@ -41,15 +43,17 @@ export function createSocketServer(httpServer: HttpServer) {
     io.on('connection', (socket) => {
         socketLogger.log(`User ${socket.id} connected`);
         socket.on('disconnecting', () => {
+            socketLogger.log(`user ${socket.id} disconnected`)
             //If socket is in a room, remove it from it.
-            for (const room in socket.rooms.values) {
+            const roomsArray = [...socket.rooms];
+            roomsArray.forEach(room => {
                 if (room !== socket.id) {
                     const lobby = lobbies.get(room)
                     if (!lobby) return
                     lobby.leaveGame(socket.id)
                     broadcastPlayerList(lobby)
                 }
-            }
+            })
         })
         socket.on('joinGame', (username, roomCode) => {
             //Takes username and roomId as input.
@@ -63,6 +67,7 @@ export function createSocketServer(httpServer: HttpServer) {
                 lobby = createNewLobby(roomCode)
                 lobbies.set(roomCode, lobby)
             }
+            socketLogger.log(`Joining ${socket.id} to room ${roomCode}`)
             lobby.joinGame(socket.id, username)
             broadcastPlayerList(lobby)
         })
@@ -94,11 +99,13 @@ export function createSocketServer(httpServer: HttpServer) {
                 sendQuestionResults(lobby)
                 lobby.updateScoreboard()
                 setTimeout(() => {
+                    lobby.currentRound++
                     if (lobby.questionsRemaining()) {
-                        lobby.currentRound++
                         broadcastScoreboard(lobby)
                         setTimeout(() => broadcastQuestion(lobby), 1000);
                     } else {
+                        lobby.gameState = 'finished'
+                        broadcastGameState(lobby)
                         io.to(lobby.roomCode).emit('gameWin', lobby.getWinner())
                     }
                 }, 1000);
@@ -110,17 +117,23 @@ export function createSocketServer(httpServer: HttpServer) {
     function broadcastPlayerList(lobby: KashootLobby) {
         const playerList = Array.from(lobby.clients.values()).map(client => ({
             username: client.username,
-            isReady: client.ready
+            isReady: client.ready,
+            id: client.id
         }));
         io.to(lobby.roomCode).emit('playerList', playerList);
     }
-    
+
     function broadcastScoreboard(lobby: KashootLobby) {
         //Get scoreboard, then broadcast it to room.
         io.to(lobby.roomCode).emit('scoreboard', lobby.scoreboard)
     }
+    function broadcastGameState(lobby: KashootLobby) {
+        io.to(lobby.roomCode).emit('gameState', lobby.gameState)
+    }
     function startGame(lobby: KashootLobby) {
+        socketLogger.log(`Starting game on lobby ${lobby.roomCode}`)
         lobby.GameState = 'running'
+        broadcastGameState(lobby)
         io.to(lobby.roomCode).emit('gameStart', lobby.quizName)
         setTimeout(() => broadcastQuestion(lobby), 1000)
     }
@@ -130,6 +143,7 @@ export function createSocketServer(httpServer: HttpServer) {
         io.to(lobby.roomCode).emit('gameQuestion', question.question, question.alternatives)
     }
     function createNewLobby(roomCode: string): KashootLobby {
+        socketLogger.log('Creating new lobby with roomCode ' + roomCode)
         const Questions: Question[] = [
             {
                 question: 'What is the capital of France?',

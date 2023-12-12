@@ -1,7 +1,8 @@
 interface Client {
     username: string,
     ready: boolean,
-    answers: Map<number, AnswerId> //questionId, answerId.
+    answers: Map<number, AnswerId>, //questionId, answerId.
+    id: string
 }
 export interface Question {
     question: string;
@@ -10,7 +11,7 @@ export interface Question {
 }
 
 export type AnswerId = 0 | 1 | 2 | 3;
-type GameState = 'stopped' | 'running' | 'finished'
+export type GameState = 'stopped' | 'starting' | 'running' | 'finished'
 type UserId = string
 
 export class KashootLobby {
@@ -37,6 +38,7 @@ export class KashootLobby {
             username: username,
             ready: false,
             answers: new Map(),
+            id: userId
         }
         this.clients.set(userId, client)
     }
@@ -94,5 +96,14 @@ export class KashootLobby {
         }
 
         return userWithHighestScore;
+    }
+    allClientsAreReady(): boolean {
+            //Iterates over clients map and checks if any of them hasn't answered yet.
+            for (const [, client] of this.clients) {
+                if (!client.ready) {
+                    return false; // If any client doesn't have an answer for the current round, return false
+                }
+            }
+            return true; // All clients have answered for the current round
     }
 }
