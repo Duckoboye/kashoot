@@ -42,6 +42,7 @@ export function createSocketServer(httpServer: HttpServer) {
     io.on('connection', (socket) => {
         socketLogger.log(`User ${socket.id} connected`);
         socket.on('disconnecting', () => {
+            socketLogger.log(`user ${socket.id} disconnected`)
             //If socket is in a room, remove it from it.
             const roomsArray = [...socket.rooms];
             roomsArray.forEach(room => {
@@ -65,6 +66,7 @@ export function createSocketServer(httpServer: HttpServer) {
                 lobby = createNewLobby(roomCode)
                 lobbies.set(roomCode, lobby)
             }
+            socketLogger.log(`Joining ${socket.id} to room ${roomCode}`)
             lobby.joinGame(socket.id, username)
             broadcastPlayerList(lobby)
         })
@@ -128,6 +130,7 @@ export function createSocketServer(httpServer: HttpServer) {
         io.to(lobby.roomCode).emit('gameState', lobby.gameState)
     }
     function startGame(lobby: KashootLobby) {
+        socketLogger.log(`Starting game on lobby ${lobby.roomCode}`)
         lobby.GameState = 'running'
         broadcastGameState(lobby)
         io.to(lobby.roomCode).emit('gameStart', lobby.quizName)
@@ -139,6 +142,7 @@ export function createSocketServer(httpServer: HttpServer) {
         io.to(lobby.roomCode).emit('gameQuestion', question.question, question.alternatives)
     }
     function createNewLobby(roomCode: string): KashootLobby {
+        socketLogger.log('Creating new lobby with roomCode '+roomCode)
         const Questions: Question[] = [
             {
                 question: 'What is the capital of France?',
