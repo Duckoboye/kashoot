@@ -1,8 +1,9 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
-import { KashootLobby, Question, AnswerId, } from '../game/game'
+import { KashootLobby, Question, AnswerId, GameState, } from '../game/game'
 import Logger from '../utils/logger';
+
 
 export interface ServerToClientEvents {
     gameStart: (quizName: string) => void
@@ -11,7 +12,7 @@ export interface ServerToClientEvents {
     gameQuestion: (question: string, alternatives: string[]) => void
     questionCorrect: () => void
     questionIncorrect: () => void
-    gameState: (gameState: string) => void
+    gameState: (gameState: GameState) => void
     playerList: (playerList: {
         username: string;
         isReady: boolean;
@@ -121,7 +122,7 @@ export function createSocketServer(httpServer: HttpServer) {
         }));
         io.to(lobby.roomCode).emit('playerList', playerList);
     }
-    
+
     function broadcastScoreboard(lobby: KashootLobby) {
         //Get scoreboard, then broadcast it to room.
         io.to(lobby.roomCode).emit('scoreboard', lobby.scoreboard)
@@ -142,7 +143,7 @@ export function createSocketServer(httpServer: HttpServer) {
         io.to(lobby.roomCode).emit('gameQuestion', question.question, question.alternatives)
     }
     function createNewLobby(roomCode: string): KashootLobby {
-        socketLogger.log('Creating new lobby with roomCode '+roomCode)
+        socketLogger.log('Creating new lobby with roomCode ' + roomCode)
         const Questions: Question[] = [
             {
                 question: 'What is the capital of France?',
