@@ -15,6 +15,7 @@ export interface ServerToClientEvents {
     playerList: (playerList: {
         username: string;
         isReady: boolean;
+        id: string;
     }[]) => void
 }
 export interface ClientToServerEvents {
@@ -42,14 +43,15 @@ export function createSocketServer(httpServer: HttpServer) {
         socketLogger.log(`User ${socket.id} connected`);
         socket.on('disconnecting', () => {
             //If socket is in a room, remove it from it.
-            for (const room in socket.rooms.values) {
+            const roomsArray = [...socket.rooms];
+            roomsArray.forEach(room => {
                 if (room !== socket.id) {
                     const lobby = lobbies.get(room)
                     if (!lobby) return
                     lobby.leaveGame(socket.id)
                     broadcastPlayerList(lobby)
                 }
-            }
+            })
         })
         socket.on('joinGame', (username, roomCode) => {
             //Takes username and roomId as input.
@@ -94,11 +96,13 @@ export function createSocketServer(httpServer: HttpServer) {
                 sendQuestionResults(lobby)
                 lobby.updateScoreboard()
                 setTimeout(() => {
+                    lobby.currentRound++
                     if (lobby.questionsRemaining()) {
-                        lobby.currentRound++
                         broadcastScoreboard(lobby)
                         setTimeout(() => broadcastQuestion(lobby), 1000);
                     } else {
+                        lobby.gameState = 'finished'
+                        broadcastGameState(lobby)
                         io.to(lobby.roomCode).emit('gameWin', lobby.getWinner())
                     }
                 }, 1000);
@@ -110,7 +114,8 @@ export function createSocketServer(httpServer: HttpServer) {
     function broadcastPlayerList(lobby: KashootLobby) {
         const playerList = Array.from(lobby.clients.values()).map(client => ({
             username: client.username,
-            isReady: client.ready
+            isReady: client.ready,
+            id: client.id
         }));
         io.to(lobby.roomCode).emit('playerList', playerList);
     }
@@ -119,8 +124,12 @@ export function createSocketServer(httpServer: HttpServer) {
         //Get scoreboard, then broadcast it to room.
         io.to(lobby.roomCode).emit('scoreboard', lobby.scoreboard)
     }
+    function broadcastGameState(lobby: KashootLobby) {
+        io.to(lobby.roomCode).emit('gameState', lobby.gameState)
+    }
     function startGame(lobby: KashootLobby) {
         lobby.GameState = 'running'
+        broadcastGameState(lobby)
         io.to(lobby.roomCode).emit('gameStart', lobby.quizName)
         setTimeout(() => broadcastQuestion(lobby), 1000)
     }

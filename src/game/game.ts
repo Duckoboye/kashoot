@@ -1,7 +1,8 @@
 interface Client {
     username: string,
     ready: boolean,
-    answers: Map<number, AnswerId> //questionId, answerId.
+    answers: Map<number, AnswerId>, //questionId, answerId.
+    id: string
 }
 export interface Question {
     question: string;
@@ -37,6 +38,7 @@ export class KashootLobby {
             username: username,
             ready: false,
             answers: new Map(),
+            id: userId
         }
         this.clients.set(userId, client)
     }
