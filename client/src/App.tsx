@@ -1,4 +1,3 @@
-import Header from './components/Header'
 import { useEffect, useContext, useState } from 'react'
 import { socket } from './socket'
 import JoinForm from './components/JoinForm'
@@ -59,7 +58,9 @@ function App() {
         toRender = question?<InGameMenu question={question} answered={answered} setAnswered={setAnswered} answeredCorrect={questionCorrect} />:<Loading/>
         break;
       case 'finished':
-        toRender = winner?<Winner winner={winner==socket.id?'You!':winner}/>:<Loading/>
+        const toDisplay = winner===socket.id?
+        'You!' : playerList.find(player => player.id == socket.id)?.username || 'Unknown user'
+        toRender = winner?<Winner winner={toDisplay}/>:<Loading/>
         break;
       default:
         break;
