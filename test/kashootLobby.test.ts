@@ -88,5 +88,16 @@ describe('KashootLobby', () => {
         expect(winner).to.equal(undefined);
     });
 
+    it('should correctly check if all clients are ready', () => {
+        expect(lobby.allClientsAreReady()).to.equal(false);
+        //@ts-ignore
+        lobby.clients.get(userId1).ready = true;
+        //@ts-ignore
+        lobby.clients.get(userId2).ready = true;
+    
+        expect(lobby.allClientsAreReady()).to.equal(true);
+    });
+    
+
 
 });
