@@ -4,7 +4,7 @@
     align-items: flex-start;
     height: 100vh;
 
-    background: var(--catppuccin-mocha-mantle, #181825);
+    background: var(--mantle, #181825);
 }
 
 .pregame header {
@@ -13,11 +13,11 @@
     align-items: center;
     align-self: stretch;
 
-    background: var(--catppuccin-mocha-surface-0, #313244);
+    background: var(--surface-0, #313244);
 }
 
 .pregame #text {
-    color: var(--Text, var(--catppuccin-mocha-text, #CDD6F4));
+    color: var(--Text, var(--text, #CDD6F4));
     text-align: center;
     font-size: 4rem;
     font-style: normal;
@@ -32,8 +32,8 @@
     align-items: flex-end;
     align-self: stretch;
 
-    border-bottom: 2px solid var(--catppuccin-mocha-crust, #11111B);
-    background: var(--catppuccin-mocha-base, #1E1E2E);
+    border-bottom: 2px solid var(--crust, #11111B);
+    background: var(--base, #1E1E2E);
 }
 
 #mainplayer {
@@ -42,8 +42,8 @@
     justify-content: center;
 
     border-radius: 0rem 0rem 0rem 0.625rem;
-    border: 1px solid var(--catppuccin-mocha-surface-1, #45475A);
-    background: var(--catppuccin-mocha-surface-0, #313244);
+    border: 1px solid var(--surface-1, #45475A);
+    background: var(--surface-0, #313244);
 }
 
 #mainplayer #buttons {
@@ -61,8 +61,8 @@
     align-items: center;
 
     border-radius: 0rem;
-    border: 1px solid var(--catppuccin-mocha-surface-1, #45475A);
-    background: var(--catppuccin-mocha-surface-2, #585B70);
+    border: 1px solid var(--surface-1, #45475A);
+    background: var(--surface-2, #585B70);
 }
 
 #mainplayer #ready {
@@ -75,7 +75,7 @@
     justify-content: center;
     align-items: center;
 
-    background: var(--catppuccin-mocha-surface-1, #45475A);
+    background: var(--surface-1, #45475A);
 }
 
 .players-list {
@@ -98,7 +98,7 @@
     gap: 1.5625rem;
 
     border-radius: 0.9375rem;
-    background: var(--catppuccin-mocha-surface-0, #313244);
+    background: var(--surface-0, #313244);
 }
 
 @media (max-width: 991px) {
@@ -111,10 +111,8 @@
     text-align: center;
 }
 
-
-
 .player #username {
-    color: var(--Text, var(--catppuccin-mocha-text, #cdd6f4));
+    color: var(--Text, var(--text, #cdd6f4));
     white-space: nowrap;
     font: 700 32px Inter, sans-serif;
 }
@@ -126,7 +124,7 @@
 }
 
 .player #subtext {
-    color: var(--subtext, var(--catppuccin-mocha-subtext-1, #bac2de));
+    color: var(--subtext, var(--subtext-1, #bac2de));
     margin-top: 25px;
     white-space: nowrap;
     font: 400 32px Inter, sans-serif;
