@@ -11,7 +11,7 @@ interface GameAnswerButtonProps {
 const Buttons: React.FC<GameAnswerButtonProps> = ({ alternatives, setAnswered }) => {
   const colorCodes = [
     'green',
-    'yellow',
+    '#ffb300',
     'red',
     'blue'
   ]
@@ -22,7 +22,7 @@ const Buttons: React.FC<GameAnswerButtonProps> = ({ alternatives, setAnswered })
     setAnswered(true)
   }
   return (
-    <div className="answerButtons">
+    <div id="buttons">
       {alternatives.map((alternative, index) => (
         <GameAnswerButton key={index} answerId={index} text={alternative} colorCode={colorCodes[index]} onClick={() => handleButtonClick(index)} />
       ))}
