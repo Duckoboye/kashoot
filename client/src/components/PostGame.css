@@ -1,0 +1,68 @@
+#postgame {
+    display: flex;
+    padding: 4.4375vh 3.6875vh;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5vw;
+    flex: 1 0 0;
+    align-self: stretch;
+
+    background: var(--base, #1E1E2E);
+}
+
+#winnerbox {
+    display: flex;
+    padding: 0 15vw;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0.625rem;
+    background: var(--surface-0, #313244);
+}
+
+#winnerbox #label,
+#winnerbox #username,
+#winnerbox #score {
+    color: #FFF;
+    font-style: normal;
+    line-height: normal;
+}
+
+#winnerbox #label {
+    font-size: 4vw;
+    font-weight: 700;
+}
+
+#winnerbox #username {
+    font-size: 5vw;
+    font-weight: 700;
+}
+
+#winnerbox #score {
+    font-size: 3vw;
+    font-weight: 500;
+}
+
+.scorecard {
+    display: flex;
+    padding: 2vh 1.1875rem;
+    justify-content: space-between;
+    align-items: center;
+    align-self: stretch;
+    border-bottom: 3px solid var(--secondary, #181825);
+    background: var(--surface-0, #313244);
+    color: #FFF;
+    font-size: 3vw;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+#scoreboard {
+    display: flex;
+    padding: 3.125rem 1.875rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    align-self: stretch;
+    background: var(--mantle, #181825);
+}

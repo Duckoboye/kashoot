@@ -17,7 +17,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: var(--mantle);
+  background-color: var(--base);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

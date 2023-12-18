@@ -1,12 +1,12 @@
 import { useEffect, useContext, useState } from 'react'
-import { socket } from './socket'
+import { Scoreboard, socket } from './socket'
 import JoinForm from './components/JoinForm'
 import { RoomContext } from './components/RoomProvider'
 import { Player, Question } from './socket'
 import PreGameMenu from './components/PreGameMenu'
 import InGameMenu from './components/InGameMenu'
 import Loading from './components/Loading'
-import Winner from './components/Winner'
+import PostGame from './components/PostGame'
 
 function App() {
   const { roomCode, } = useContext(RoomContext)
@@ -17,6 +17,7 @@ function App() {
   const [questionCorrect, setQuestionCorrect] = useState<boolean | undefined>()
   const [answered, setAnswered] = useState<boolean>(false)
   const [winner, setWinner] = useState<string>()
+  const [scoreboard, setScoreboard] = useState<Scoreboard>()
 
   useEffect(() => {
     function onQuestion(question: string, alternatives: string[]) {
@@ -37,6 +38,10 @@ function App() {
       setQuestionCorrect(false)
     })
     socket.on('gameWin', setWinner)
+    socket.on('scoreboard', (scoreboard) => {
+      console.log('epico', scoreboard)
+      setScoreboard(scoreboard)
+    })
 
     return () => {
       socket.off('playerList')
@@ -47,29 +52,28 @@ function App() {
       socket.off('questionIncorrect')
       socket.off('gameWin')
       socket.off('gameState')
+      socket.off('scoreboard')
     }
   }, [])
   let toRender
-    switch (gameState) {
-      case 'stopped':
+  switch (gameState) {
+    case 'stopped':
       toRender = <PreGameMenu playerList={playerList}></PreGameMenu>
       break;
-      case 'running':
-        toRender = question?<InGameMenu question={question} answered={answered} setAnswered={setAnswered} answeredCorrect={questionCorrect} />:<Loading/>
-        break;
-      case 'finished':
-        const toDisplay = winner===socket.id?
-        'You!' : playerList.find(player => player.id == socket.id)?.username || 'Unknown user'
-        toRender = winner?<Winner winner={toDisplay}/>:<Loading/>
-        break;
-      default:
-        break;
+    case 'running':
+      toRender = question ? <InGameMenu question={question} answered={answered} setAnswered={setAnswered} answeredCorrect={questionCorrect} /> : <Loading />
+      break;
+    case 'finished':
+      toRender = <PostGame scoreboard={scoreboard} winner={winner} />
+      break;
+    default:
+      break;
   }
-  
+
   return (
     <>
       {!roomCode ? <JoinForm /> : (
-      toRender)}
+        toRender)}
     </>
   )
 }

@@ -3,10 +3,10 @@ import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
 import { KashootLobby, Question, AnswerId, GameState, Scoreboard, } from '../game/game'
 import Logger from '../utils/logger';
-export type ScoreboardArray = { userId: string; score: number; }[] 
+export type Scorecard = { userId: string; username: string; score: number; }
 export interface ServerToClientEvents {
     gameStart: (quizName: string) => void
-    scoreboard: (scoreboard: ScoreboardArray) => void
+    scoreboard: (scoreboard: Scorecard[]) => void
     gameWin: (winner: string | undefined) => void
     gameQuestion: (question: string, alternatives: string[]) => void
     questionCorrect: () => void
@@ -123,13 +123,26 @@ export function createSocketServer(httpServer: HttpServer) {
     }
 
     function broadcastScoreboard(lobby: KashootLobby) {
-        const scoreboardArray = Array.from(lobby.scoreboard.entries()).map(([userId, score]) => ({
-            userId,
-            score,
-        }));
-        
+        const scoreboardArray = Array.from(lobby.scoreboard.entries()).map(([userId, score]) => {
+            const client = lobby.clients.get(userId);
+            if (client) { // This is probably not neccesary, but it doesn't hurt.
+                return {
+                    userId,
+                    username: client.username,
+                    score,
+                };
+            } else {
+                return {
+                    userId,
+                    username: 'Anon', 
+                    score,
+                };
+            }
+        });
+    
         io.to(lobby.roomCode).emit('scoreboard', scoreboardArray);
     }
+    
     function broadcastGameState(lobby: KashootLobby) {
         io.to(lobby.roomCode).emit('gameState', lobby.gameState)
     }
