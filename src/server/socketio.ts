@@ -1,13 +1,12 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { config } from '../utils/utils';
-import { KashootLobby, Question, AnswerId, GameState, } from '../game/game'
+import { KashootLobby, Question, AnswerId, GameState, Scoreboard, } from '../game/game'
 import Logger from '../utils/logger';
-
-
+export type ScoreboardArray = { userId: string; score: number; }[] 
 export interface ServerToClientEvents {
     gameStart: (quizName: string) => void
-    scoreboard: (scoreboard: Map<string, number>) => void
+    scoreboard: (scoreboard: ScoreboardArray) => void
     gameWin: (winner: string | undefined) => void
     gameQuestion: (question: string, alternatives: string[]) => void
     questionCorrect: () => void
@@ -124,8 +123,12 @@ export function createSocketServer(httpServer: HttpServer) {
     }
 
     function broadcastScoreboard(lobby: KashootLobby) {
-        //Get scoreboard, then broadcast it to room.
-        io.to(lobby.roomCode).emit('scoreboard', lobby.scoreboard)
+        const scoreboardArray = Array.from(lobby.scoreboard.entries()).map(([userId, score]) => ({
+            userId,
+            score,
+        }));
+        
+        io.to(lobby.roomCode).emit('scoreboard', scoreboardArray);
     }
     function broadcastGameState(lobby: KashootLobby) {
         io.to(lobby.roomCode).emit('gameState', lobby.gameState)
