@@ -4,9 +4,10 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start": "npm run server",
-    "server": "nodemon dist/index.js",
-    "dev": "concurrently \"npx tsc --watch\" \"npm run server\"",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node dist/index.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon dist/index.js\"",
     "test": "npx mocha -r ts-node/register test/*.test.ts",
     "test-serial": "npx mocha -r ts-node/register test/serial.test.ts"
   },
@@ -35,6 +36,7 @@
     "@types/node": "^20.8.5",
     "chai": "^4.3.10",
     "chai-http": "^4.4.0",
+    "concurrently": "^8.2.2",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
     "socket.io-client": "^4.7.2",
