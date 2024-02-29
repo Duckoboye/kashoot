@@ -13,6 +13,8 @@ export interface Question {
 export type AnswerId = 0 | 1 | 2 | 3;
 export type GameState = 'stopped' | 'starting' | 'running' | 'finished'
 type UserId = string
+type Score = number
+export type Scoreboard = Map<UserId, Score>
 
 export class KashootLobby {
     currentRound: number;
@@ -71,7 +73,7 @@ export class KashootLobby {
         const correctAnswerId: number = this.questions[this.currentRound].correctAnswerId
         for (const [userId, client] of this.clients) {
             if (client.answers.get(this.currentRound) === correctAnswerId) {
-                const score: number = this.scoreboard.get(userId) || 0
+                const score: Score = this.scoreboard.get(userId) || 0
                 this.scoreboard.set(userId, score + 1)
             }
         }
